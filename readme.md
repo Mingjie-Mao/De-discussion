@@ -1,69 +1,74 @@
 # De
 
-De 是一个校园讨论社区 Android 应用 Demo，由 404 Sleep Not Found 团队开发。
+[![English](https://img.shields.io/badge/English-4285F4?style=for-the-badge)](readme.md)
+[![中文](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-555555?style=for-the-badge)](readme.zh-CN.md)
 
-它把校园论坛、审核机制和学校热度代币玩法结合在一起。用户可以在不同学校频道中浏览帖子、发布带图片的内容、查看多层评论；管理员可以处理举报内容；同时还可以参与基于社区活跃度生成的 Heat Market 和排行榜。
+De is a demo Android app for campus discussion communities, built by the 404 Sleep Not Found team.
 
-## 项目亮点
+It combines a campus forum, a moderation workflow, and a school heat-token game. Users can browse posts across different school channels, publish content with images, and read threaded comments; admins can handle reported content; and everyone can take part in the Heat Market and leaderboards driven by community activity.
 
-- 多学校频道切换，不同频道有不同视觉风格
-- 支持发帖、图片上传和评论互动
-- 评论区支持展开与折叠，移动端阅读更清晰
-- 提供成员模式和管理员模式
-- 管理员可在举报队列中快速查看和处理被举报内容
-- 引入学校代币系统，热度由帖子、回复和点赞共同驱动
-- 通过排行榜展示不同用户的市场表现
-- 每日余额重置，保证玩法持续可体验
+The moderation logic in this app is also available as a standalone backend service: [De-Moderation](https://github.com/Mingjie-Mao/De-Moderation), a Spring Boot content moderation backend with LLM-assisted review.
 
-## 界面预览
+## Highlights
 
-| 首页信息流 | 评论区 |
+- Switch between multiple school channels, each with its own visual style
+- Post creation, image upload, and comment interaction
+- Expandable and collapsible comment threads for cleaner mobile reading
+- Both member mode and admin mode
+- Admins can review and act on reported content from a report queue
+- School token system, with heat driven by posts, replies, and likes
+- Leaderboards showing how different users perform in the market
+- Daily balance reset, so the game stays playable over time
+
+## Screenshots
+
+| Feed | Comments |
 | --- | --- |
-| ![首页信息流](picture/feed.png) | ![评论区](picture/comments.png) |
+| ![Feed](picture/feed.png) | ![Comments](picture/comments.png) |
 
-| Heat Market | 排行榜 |
+| Heat Market | Leaderboard |
 | --- | --- |
-| ![Heat Market](picture/market.png) | ![排行榜](picture/leaderboard.png) |
+| ![Heat Market](picture/market.png) | ![Leaderboard](picture/leaderboard.png) |
 
-## Demo 体验流程
+## Demo Walkthrough
 
-1. 使用 Demo 账号登录
-2. 选择 Member 或 Admin
-3. 浏览不同学校频道中的帖子
-4. 在成员模式下举报评论
-5. 在管理员模式下进入审核队列处理举报
-6. 在 Heat Market 中交易学校代币并查看排行榜
+1. Sign in with the demo account
+2. Choose Member or Admin
+3. Browse posts across the different school channels
+4. Report a comment in member mode
+5. Switch to admin mode and handle the report from the review queue
+6. Trade school tokens in the Heat Market and check the leaderboard
 
-## Demo 账号
+## Demo Account
 
-用户名：1234
+Username: 1234
 
-密码：1234
+Password: 1234
 
-## 技术栈
+## Tech Stack
 
 - Java
 - Android SDK
 - Gradle
-- 自定义审核模块与数据结构模块
+- Custom moderation and data structure modules
 
-## 项目结构
+## Project Structure
 
-- android/：Android 应用代码与资源文件
-- android/app/src/main/java/com/example/myapplication/：页面、组件与主要业务逻辑
-- android/app/src/main/java/moderation/：举报、隐藏、审核队列相关逻辑
-- app/src/：仓库中保留的原始课程侧 Java 模块
-- picture/：README 展示用项目截图
+- `android/` — Android app code and resource files
+- `android/app/src/main/java/com/example/myapplication/` — screens, components, and core business logic
+- `android/app/src/main/java/moderation/` — reporting, hiding, and review queue logic
+- `app/src/` — the original coursework-side Java module kept in the repo
+- `picture/` — project screenshots used in this README
 
-## 运行方式
+## Getting Started
 
-用 Android Studio 打开 android/
+Open `android/` in Android Studio.
 
-等待 Gradle 同步完成
+Wait for the Gradle sync to finish.
 
-在模拟器或真机上运行应用
+Run the app on an emulator or a physical device.
 
-也可以使用命令行构建：
+You can also build from the command line:
 
 ```bash
 cd android
