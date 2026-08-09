@@ -31,7 +31,7 @@
             android:layout_height="1dp"
             android:layout_weight="1" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonPublishPost"
             android:layout_width="wrap_content"
             android:layout_height="42dp"
@@ -177,7 +177,7 @@
                     android:contentDescription="@string/action_add_emoji"
                     android:padding="10dp"
                     android:src="@drawable/ic_emoji_24"
-                    android:tint="@color/ink_primary" />
+                    app:tint="@color/ink_primary" />
 
                 <ImageButton
                     android:id="@+id/buttonAddPostImage"
@@ -188,7 +188,7 @@
                     android:contentDescription="@string/action_add_image"
                     android:padding="10dp"
                     android:src="@drawable/ic_image_24"
-                    android:tint="@color/ink_primary" />
+                    app:tint="@color/ink_primary" />
 
                 <ImageButton
                     android:id="@+id/buttonMentionFriend"
@@ -199,7 +199,7 @@
                     android:contentDescription="@string/action_mention_friend"
                     android:padding="10dp"
                     android:src="@drawable/ic_at_24"
-                    android:tint="@color/ink_primary" />
+                    app:tint="@color/ink_primary" />
             </LinearLayout>
 
             <ImageView

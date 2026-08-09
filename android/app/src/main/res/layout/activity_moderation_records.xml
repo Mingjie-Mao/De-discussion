@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/recordsRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_background"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <Button
+        android:id="@+id/buttonRecordsBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:backgroundTint="@color/tab_bar_fill"
+        app:strokeColor="@color/surface_border"
+        app:strokeWidth="1.5dp"
+        app:cornerRadius="999dp"
+        android:text="@string/action_back"
+        android:textAllCaps="false"
+        android:textColor="@color/ink_primary" />
+
+    <TextView
+        android:id="@+id/textRecordsTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/records_title"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textColor="@color/ink_primary"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textRecordsSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:textColor="@color/ink_secondary" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonRecordsRecent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            app:backgroundTint="@color/tab_bar_fill"
+            app:strokeColor="@color/surface_border"
+            app:strokeWidth="1.5dp"
+            app:cornerRadius="999dp"
+            app:icon="@drawable/ic_shield_outline_24"
+            app:iconSize="16dp"
+            app:iconTint="@color/ink_primary"
+            app:iconGravity="textStart"
+            android:text="@string/backend_records_sort_recent"
+            android:textAllCaps="false"
+            android:textColor="@color/ink_primary" />
+
+        <Button
+            android:id="@+id/buttonRecordsByAction"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            app:backgroundTint="@color/tab_bar_fill"
+            app:strokeColor="@color/surface_border"
+            app:strokeWidth="1.5dp"
+            app:cornerRadius="999dp"
+            app:icon="@drawable/ic_shield_outline_24"
+            app:iconSize="16dp"
+            app:iconTint="@color/ink_primary"
+            app:iconGravity="textStart"
+            android:text="@string/backend_records_sort_action"
+            android:textAllCaps="false"
+            android:textColor="@color/ink_primary" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textRecordsEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/backend_records_empty"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="@color/ink_secondary"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerRecords"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="12dp" />
+
+</LinearLayout>

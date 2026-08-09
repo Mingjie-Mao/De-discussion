@@ -16,7 +16,7 @@
     <string name="viewer_user_admin">%1$s 正在处理举报</string>
 
     <string name="drawer_change_avatar">编辑头像</string>
-    <string name="drawer_queue">举报队列</string>
+    <string name="drawer_queue">人工待审核</string>
     <string name="drawer_switch_member">切换到成员视图</string>
     <string name="drawer_switch_admin">切换到管理员视图</string>
     <string name="drawer_settings">设置</string>
@@ -28,12 +28,12 @@
     <string name="forum_usyd_label">USYD</string>
     <string name="forum_um_label">UM</string>
     <string name="forum_anu_subtitle_member">浏览已填充的 ANU 演示论坛，打开帖子，并举报需要管理员处理的评论。</string>
-    <string name="forum_anu_subtitle_admin">以管理员身份查看已填充的 ANU 演示论坛，检查隐藏评论，并从个人页进入举报队列。</string>
+    <string name="forum_anu_subtitle_admin">以管理员身份查看已填充的 ANU 演示论坛，检查隐藏评论，并从个人页进入人工待审核。</string>
     <string name="forum_empty_subtitle">%1$s 已经接入论坛切换逻辑，但暂时还没有填充演示帖子。</string>
     <string name="feed_empty_title_generic">暂时还没有帖子</string>
     <string name="feed_empty_body_generic">你可以在这个论坛先发布第一条帖子。</string>
     <string name="feed_empty_title_forum">%1$s 目前还是空的</string>
-    <string name="feed_empty_body_forum">论坛切换已经接好了，但这个论坛暂时还没有灌入演示内容。</string>
+    <string name="feed_empty_body_forum">%1$s 的论坛切换已经接好了，但暂时还没有灌入演示内容。</string>
     <string name="search_channel_hint">搜索 %1$s 中的帖子</string>
     <string name="search_empty_title">没有找到相关帖子</string>
     <string name="search_empty_body">试试换个关键词</string>
@@ -47,9 +47,22 @@
     <string name="settings_language_zh">中文</string>
     <string name="settings_theme_light">浅色</string>
     <string name="settings_theme_dark">深色</string>
+    <string name="backend_settings_button">审核后端</string>
+    <string name="backend_settings_title">审核后端</string>
+    <string name="backend_enabled">使用在线审核服务</string>
+    <string name="backend_url_hint">后端地址</string>
+    <string name="backend_admin_username_hint">管理员用户名（用于人工待审核）</string>
+    <string name="backend_admin_password_hint">管理员密码</string>
+    <string name="backend_password_session_note">管理员密码只保留在本次 App 进程中，不会写入设备存储。</string>
+    <string name="backend_status_checking">正在检查审核服务…</string>
+    <string name="backend_status_offline">离线演示模式——举报只保留在本机，不会调用 LLM。</string>
+    <string name="backend_status_llm">在线 • LLM 已启用：%1$s</string>
+    <string name="backend_status_rules">在线 • 仅规则引擎：%1$s</string>
+    <string name="backend_status_unreachable">审核服务不可用：%1$s</string>
 
     <string name="action_save">保存</string>
     <string name="action_cancel">取消</string>
+    <string name="action_close">关闭</string>
     <string name="action_clear_search">清空搜索</string>
     <string name="action_send">发送</string>
     <string name="action_back">返回</string>
@@ -106,7 +119,7 @@
     <string name="compose_post_prompt">你想分享什么？</string>
     <string name="compose_reply_scope">将发到当前选中的论坛</string>
 
-    <string name="toast_switch_admin_required">请先切换到管理员视图，再打开举报队列。</string>
+    <string name="toast_switch_admin_required">请先切换到管理员视图，再打开人工待审核。</string>
     <string name="toast_feature_coming_soon">这个功能目前还是占位。</string>
     <string name="toast_profile_saved">资料已更新。</string>
     <string name="toast_action_failed">这个操作暂时无法完成。</string>
@@ -114,6 +127,11 @@
     <string name="toast_reply_restored">该评论已恢复显示。</string>
     <string name="toast_reply_reported">已举报该评论。</string>
     <string name="toast_report_removed">已撤销举报。</string>
+    <string name="toast_report_submitting">正在提交到审核服务…</string>
+    <string name="toast_report_sent_for_review">举报已受理，自动分析正在进行。</string>
+    <string name="toast_report_failed">举报未提交：%1$s</string>
+    <string name="toast_online_report_final">在线举报提交后不能撤回。</string>
+    <string name="toast_review_in_queue">请在人工待审核中记录正式审核决定。</string>
     <string name="toast_post_created">帖子已发布。</string>
     <string name="toast_post_updated">帖子已保存。</string>
     <string name="toast_reply_created">回复已发布。</string>
@@ -296,8 +314,56 @@
     <string name="queue_sort_most">按举报数量排序</string>
     <string name="queue_subtitle_empty">%1$s • 当前没有被举报的评论</string>
     <string name="queue_subtitle_count">%1$s • 共 %2$d 条被举报评论</string>
-    <string name="queue_title">举报队列</string>
+    <string name="queue_title">人工待审核</string>
     <string name="queue_empty">当前没有被举报的评论。你可以先切到成员视图，举报一条评论，再回到这里检查。</string>
+    <string name="backend_queue_loading">正在从审核服务加载已分析案件…</string>
+    <string name="backend_queue_count">在线审核队列 • %1$d 个案件待复核</string>
+    <string name="backend_queue_empty">当前没有已完成自动分析的案件。新举报可能仍在分析队列中；点击排序按钮可刷新。</string>
+    <string name="backend_queue_error">无法加载在线队列：%1$s</string>
+    <string name="backend_queue_configure">请检查后端地址，并在设置中填写管理员凭据。</string>
+    <string name="backend_case_engine">%1$s • 建议 %2$s • 置信度 %3$d%%</string>
+    <string name="backend_case_meta">%1$d 次举报 • %2$s</string>
+    <string name="action_review">复核</string>
+    <string name="backend_review_details">引擎：%1$s\n建议：%2$s（%3$d%%）\n\n理由：%4$s\n\n内容：\n%5$s</string>
+    <string name="backend_decision_keep">保留</string>
+    <string name="backend_decision_hide">隐藏</string>
+    <string name="backend_decision_ban">封禁作者</string>
+    <string name="backend_decision_delete">删除</string>
+    <string name="backend_error_admin_credentials">请先在设置中填写后端管理员凭据。</string>
+    <string name="backend_error_unreachable">无法连接审核服务：%1$s。</string>
+    <string name="backend_error_generic">无法连接审核服务。</string>
+    <string name="backend_error_malformed">审核服务返回了无法解析的响应。</string>
+    <string name="backend_content_unavailable">该内容已不可用。</string>
+    <string name="backend_decision_submitting">正在保存人工复核决定…</string>
+    <string name="backend_decision_note">已在 De Android App 中完成人工复核。</string>
+    <string name="backend_decision_saved">人工复核决定已保存。</string>
+    <string name="backend_decision_failed">决定未保存：%1$s</string>
+
+    <string name="records_title">AI 已审核记录</string>
+    <string name="settings_moderation_records">AI 已审核记录</string>
+
+    <string name="moderation_action_none">保留</string>
+    <string name="moderation_action_hide">已隐藏</string>
+    <string name="moderation_action_delete">已删除</string>
+    <string name="moderation_action_ban">已封禁作者</string>
+    <string name="moderation_decision_allow">保留</string>
+    <string name="moderation_decision_remove">删除</string>
+    <string name="moderation_decision_escalate">需人工判断</string>
+    <string name="moderation_status_queued">排队中</string>
+    <string name="moderation_status_analysing">分析中</string>
+    <string name="moderation_status_awaiting">待人工审核</string>
+    <string name="moderation_status_resolved">已审核</string>
+    <string name="backend_records_loading">正在从审核服务加载已审核案件…</string>
+    <string name="backend_records_count">已完成人工审核 • %1$d 个案件</string>
+    <string name="backend_records_empty">还没有已审核的记录。在审核队列中处理一个案件后，它会出现在这里，并且仍然可以修改决定。</string>
+    <string name="backend_records_error">无法加载已审核案件：%1$s</string>
+    <string name="backend_case_decided_meta">处置：%1$s • %2$d 次举报</string>
+    <string name="action_change_decision">修改</string>
+    <string name="backend_record_details">引擎：%1$s\n建议：%2$s（%3$d%%）\n当前处置：%4$s\n\n理由：%5$s\n\n内容：\n%6$s</string>
+    <string name="backend_record_note">已在 De Android App 中修改决定。</string>
+    <string name="backend_record_unchanged">该案件当前的处置已经是这个结果。</string>
+    <string name="backend_records_sort_recent">最近优先</string>
+    <string name="backend_records_sort_action">按处置</string>
 
     <string name="reported_meta_format">%1$s • %2$s</string>
     <string name="thread_unknown">未知帖子</string>

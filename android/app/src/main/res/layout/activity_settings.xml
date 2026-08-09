@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/settingsRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/page_background"
-    android:orientation="vertical"
+    android:fillViewport="true"
     android:paddingStart="22dp"
     android:paddingTop="24dp"
     android:paddingEnd="22dp"
     android:paddingBottom="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -175,6 +180,51 @@
             app:iconTint="@color/ink_primary"
             app:strokeColor="@color/surface_border"
             app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/buttonSettingsModerationRecords"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/settings_moderation_records"
+            android:textAllCaps="false"
+            android:textColor="@color/ink_primary"
+            android:textSize="15sp"
+            app:backgroundTint="@color/tab_bar_fill"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_check_24"
+            app:iconGravity="textStart"
+            app:iconPadding="10dp"
+            app:iconTint="@color/ink_primary"
+            app:strokeColor="@color/surface_border"
+            app:strokeWidth="1dp" />
+
+        <TextView
+            android:id="@+id/textSettingsBackendStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/backend_status_checking"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="@color/ink_secondary" />
+
+        <Button
+            android:id="@+id/buttonSettingsBackend"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/backend_settings_button"
+            android:textAllCaps="false"
+            android:textColor="@color/ink_primary"
+            android:textSize="15sp"
+            app:backgroundTint="@color/tab_bar_fill"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_shield_outline_24"
+            app:iconGravity="textStart"
+            app:iconPadding="10dp"
+            app:iconTint="@color/ink_primary"
+            app:strokeColor="@color/surface_border"
+            app:strokeWidth="1dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -220,4 +270,5 @@
             app:strokeColor="@color/surface_border"
             app:strokeWidth="1dp" />
     </LinearLayout>
-</LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

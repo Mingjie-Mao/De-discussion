@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.graphics.drawable.Animatable;
 import android.content.res.ColorStateList;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -162,6 +164,26 @@ public class MainActivity extends AppCompatActivity {
         textDrawerForumUsyd = findViewById(R.id.textDrawerForumUsyd);
         textDrawerForumUm = findViewById(R.id.textDrawerForumUm);
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (drawerRoot.isDrawerOpen(GravityCompat.START)) {
+                    drawerRoot.closeDrawer(GravityCompat.START);
+                    return;
+                }
+                if (viewPager.getCurrentItem() != MainPagerAdapter.PAGE_CHANNELS) {
+                    setPage(MainPagerAdapter.PAGE_CHANNELS, true);
+                    return;
+                }
+
+                // Temporarily step out of this callback so the dispatcher can
+                // perform the platform's default finish/predictive-back action.
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+                setEnabled(true);
+            }
+        });
+
         applyInsets(mainContent, true);
         applyInsets(drawerPanel, false);
 
@@ -191,19 +213,6 @@ public class MainActivity extends AppCompatActivity {
         AppData.setAdminMode(UiPreferences.isAdminSession(this));
         refreshDrawerUi();
         notifyPagesChanged();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (drawerRoot.isDrawerOpen(GravityCompat.START)) {
-            drawerRoot.closeDrawer(GravityCompat.START);
-            return;
-        }
-        if (viewPager.getCurrentItem() != MainPagerAdapter.PAGE_CHANNELS) {
-            setPage(MainPagerAdapter.PAGE_CHANNELS, true);
-            return;
-        }
-        super.onBackPressed();
     }
 
     @Override
@@ -711,7 +720,10 @@ public class MainActivity extends AppCompatActivity {
         button.setGravity(android.view.Gravity.CENTER_VERTICAL);
         button.setClickable(true);
         button.setFocusable(true);
-        button.setForeground(ContextCompat.getDrawable(this, android.R.attr.selectableItemBackground));
+        android.content.res.TypedArray foreground =
+                obtainStyledAttributes(new int[]{android.R.attr.selectableItemBackground});
+        button.setForeground(foreground.getDrawable(0));
+        foreground.recycle();
         android.content.res.ColorStateList bgTint = android.content.res.ColorStateList.valueOf(
                 ContextCompat.getColor(this, R.color.surface));
         button.setBackgroundTintList(bgTint);
@@ -747,6 +759,7 @@ public class MainActivity extends AppCompatActivity {
         layoutDrawerForumList.addView(button, addButtonIndex);
     }
 
+    @SuppressLint("WrongConstant")
     private void configurePager() {
         viewPager.setAdapter(new MainPagerAdapter(this));
         viewPager.setOffscreenPageLimit(MainPagerAdapter.PAGE_COUNT);

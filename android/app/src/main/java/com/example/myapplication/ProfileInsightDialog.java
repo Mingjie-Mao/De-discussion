@@ -1,15 +1,11 @@
 package com.example.myapplication;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -20,7 +16,6 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,6 +113,7 @@ final class ProfileInsightDialog {
         holder[0] = show(context, content);
     }
 
+    /** Delegates to {@link AppSheet} so every dialog in the app shares one card style. */
     private static LinearLayout buildSheet(
             Context context,
             @StringRes int titleResId,
@@ -125,77 +121,7 @@ final class ProfileInsightDialog {
             boolean showCount,
             Runnable onClose
     ) {
-        LinearLayout shell = new LinearLayout(context);
-        shell.setOrientation(LinearLayout.VERTICAL);
-        shell.setClipToOutline(true);
-        shell.setPadding(dp(context, 20), dp(context, 18), dp(context, 20), dp(context, 18));
-        shell.setBackground(makeRoundRect(
-                context,
-                R.color.surface,
-                R.color.surface_border,
-                28,
-                1
-        ));
-
-        LinearLayout header = new LinearLayout(context);
-        header.setOrientation(LinearLayout.HORIZONTAL);
-        header.setGravity(Gravity.CENTER_VERTICAL);
-        shell.addView(header, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-
-        LinearLayout titleBlock = new LinearLayout(context);
-        titleBlock.setOrientation(LinearLayout.HORIZONTAL);
-        titleBlock.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams titleBlockParams = new LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1
-        );
-        header.addView(titleBlock, titleBlockParams);
-
-        TextView title = new TextView(context);
-        title.setText(titleResId);
-        title.setTextColor(ContextCompat.getColor(context, R.color.ink_primary));
-        title.setTextSize(22);
-        title.setTypeface(Typeface.DEFAULT_BOLD);
-        title.setIncludeFontPadding(false);
-        titleBlock.addView(title);
-
-        if (showCount) {
-            TextView countBadge = new TextView(context);
-            countBadge.setText(String.valueOf(count));
-            countBadge.setTextColor(ContextCompat.getColor(context, R.color.ink_secondary));
-            countBadge.setTextSize(13);
-            countBadge.setTypeface(Typeface.DEFAULT_BOLD);
-            countBadge.setGravity(Gravity.CENTER);
-            countBadge.setMinWidth(dp(context, 34));
-            countBadge.setPadding(dp(context, 10), dp(context, 5), dp(context, 10), dp(context, 5));
-            countBadge.setBackground(makeRoundRect(
-                    context,
-                    R.color.surface_alt,
-                    R.color.surface_border,
-                    999,
-                    1
-            ));
-            LinearLayout.LayoutParams badgeParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            badgeParams.setMargins(dp(context, 10), 0, 0, 0);
-            titleBlock.addView(countBadge, badgeParams);
-        }
-
-        ImageButton close = new ImageButton(context);
-        close.setImageResource(R.drawable.ic_close_24);
-        close.setColorFilter(ContextCompat.getColor(context, R.color.ink_primary));
-        close.setBackground(makeRoundRect(context, R.color.surface_alt, R.color.surface_border, 999, 1));
-        close.setPadding(dp(context, 9), dp(context, 9), dp(context, 9), dp(context, 9));
-        close.setOnClickListener(v -> onClose.run());
-        header.addView(close, new LinearLayout.LayoutParams(dp(context, 42), dp(context, 42)));
-
-        return shell;
+        return AppSheet.sheet(context, context.getString(titleResId), showCount ? count : null, onClose);
     }
 
     private static View makeUserRow(Context context, User user, Runnable onClick) {
@@ -346,21 +272,7 @@ final class ProfileInsightDialog {
     }
 
     private static AlertDialog show(Context context, View content) {
-        AlertDialog dialog = new MaterialAlertDialogBuilder(
-                context,
-                R.style.ThemeOverlay_App_MaterialAlertDialog
-        )
-                .setView(content)
-                .create();
-        dialog.show();
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            window.setDimAmount(0.62f);
-            int width = context.getResources().getDisplayMetrics().widthPixels - dp(context, 48);
-            window.setLayout(width, LinearLayout.LayoutParams.WRAP_CONTENT);
-        }
-        return dialog;
+        return AppSheet.show(context, content);
     }
 
     private static GradientDrawable makeRoundRect(
@@ -370,17 +282,10 @@ final class ProfileInsightDialog {
             int radiusDp,
             int strokeWidthDp
     ) {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setShape(GradientDrawable.RECTANGLE);
-        drawable.setCornerRadius(dp(context, radiusDp));
-        drawable.setColor(ContextCompat.getColor(context, fillResId));
-        if (strokeResId != 0 && strokeWidthDp > 0) {
-            drawable.setStroke(dp(context, strokeWidthDp), ContextCompat.getColor(context, strokeResId));
-        }
-        return drawable;
+        return AppSheet.roundRect(context, fillResId, strokeResId, radiusDp, strokeWidthDp);
     }
 
     private static int dp(Context context, int value) {
-        return Math.round(value * context.getResources().getDisplayMetrics().density);
+        return AppSheet.dp(context, value);
     }
 }

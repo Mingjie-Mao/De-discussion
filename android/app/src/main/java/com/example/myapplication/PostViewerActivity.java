@@ -38,6 +38,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import backend.BackendConfig;
+import backend.BackendException;
+import backend.BackendModerationGateway;
+import backend.BackendReportTarget;
+import backend.BackendRuntime;
 import dao.model.Message;
 import dao.model.Post;
 import dao.model.User;
@@ -79,6 +84,7 @@ public class PostViewerActivity extends AppCompatActivity {
     private View activeReplyImagePreviewContainer;
     private TextView activeReplySendButton;
     private final Set<UUID> expandedTopLevelComments = new HashSet<>();
+    private final Set<UUID> pendingReports = new HashSet<>();
 
     private final ActivityResultLauncher<String> pickReplyImageLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -386,7 +392,22 @@ public class PostViewerActivity extends AppCompatActivity {
     }
 
     private void handleMessageAction(Message message) {
-        boolean success = AppData.isAdminMode() ? AppData.toggleHidden(message) : AppData.toggleReport(message);
+        BackendRuntime backend = BackendRuntime.from(this);
+        BackendConfig backendConfig = backend.config();
+
+        if (backendConfig.isEnabled() && AppData.isAdminMode()) {
+            Toast.makeText(this, R.string.toast_review_in_queue, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (backendConfig.isEnabled()) {
+            submitOnlineReport(backend, message);
+            return;
+        }
+
+        boolean success = AppData.isAdminMode()
+                ? AppData.toggleHidden(message)
+                : AppData.toggleReport(message);
         if (!success) {
             Toast.makeText(this, getString(R.string.toast_action_failed), Toast.LENGTH_SHORT).show();
             return;
@@ -401,6 +422,51 @@ public class PostViewerActivity extends AppCompatActivity {
                 : getString(R.string.toast_report_removed));
         Toast.makeText(this, feedback, Toast.LENGTH_SHORT).show();
         refreshUi();
+    }
+
+    private void submitOnlineReport(BackendRuntime backend, Message message) {
+        if (message == null || AppData.getCurrentUserId() == null) {
+            Toast.makeText(this, R.string.toast_action_failed, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (AppData.hasCurrentUserReported(message)) {
+            Toast.makeText(this, R.string.toast_online_report_final, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!pendingReports.add(message.id())) {
+            return;
+        }
+
+        BackendReportTarget target = AppData.backendReportTarget(message);
+        if (target == null) {
+            pendingReports.remove(message.id());
+            Toast.makeText(this, R.string.toast_action_failed, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Toast.makeText(this, R.string.toast_report_submitting, Toast.LENGTH_SHORT).show();
+        backend.moderation().submitReport(target, AppData.getCurrentUserId(),
+                new BackendModerationGateway.Callback<>() {
+                    @Override
+                    public void onSuccess(UUID reportId) {
+                        pendingReports.remove(message.id());
+                        AppData.addReport(message);
+                        Toast.makeText(
+                                PostViewerActivity.this,
+                                R.string.toast_report_sent_for_review,
+                                Toast.LENGTH_SHORT).show();
+                        refreshUi();
+                    }
+
+                    @Override
+                    public void onError(BackendException error) {
+                        pendingReports.remove(message.id());
+                        Toast.makeText(
+                                PostViewerActivity.this,
+                                getString(R.string.toast_report_failed, error.getMessage()),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private void showReplyDialog(Message parent) {

@@ -45,6 +45,10 @@ dependencies {
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     testImplementation(libs.junit)
+    // Android bundles org.json, but the unit-test classpath gets the stub that
+    // throws "Stub!" on every call. Anything parsing a backend response is
+    // untestable off-device without a real implementation here.
+    testImplementation("org.json:json:20250107")
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }

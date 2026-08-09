@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.content.Context;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import backend.BackendReportTarget;
 import dao.PostDAO;
 import dao.UserDAO;
 import dao.model.Message;
@@ -104,6 +106,7 @@ public final class AppData {
         UserDAO.getInstance().clear();
         PostDAO.getInstance().clear();
         ModerationTools.clearAll();
+        seedSequence = 0;
         POST_META.clear();
         POST_TITLE_OVERRIDES.clear();
         POST_BODY_OVERRIDES.clear();
@@ -743,6 +746,59 @@ public final class AppData {
         return ModerationTools.addReport(message.id(), memberViewer.id(), now);
     }
 
+    /** Add a local marker only after an online report was accepted. */
+    public static boolean addReport(Message message) {
+        ensurePopulated();
+        return !adminMode
+                && message != null
+                && memberViewer != null
+                && ModerationTools.addReport(
+                        message.id(), memberViewer.id(), System.currentTimeMillis());
+    }
+
+    /**
+     * Snapshot the post and the exact ancestor chain needed by the moderation
+     * backend. The local feed remains the source of truth for the demo UI; this
+     * immutable value is safe to consume on the gateway's worker thread.
+     */
+    public static BackendReportTarget backendReportTarget(Message message) {
+        ensurePopulated();
+        Post post = getPostForMessage(message);
+        if (post == null || message == null) {
+            return null;
+        }
+
+        BackendReportTarget.PostSnapshot postSnapshot = new BackendReportTarget.PostSnapshot(
+                post.id,
+                post.poster,
+                getForumKey(post),
+                getPostTitle(post),
+                getPostBody(post));
+
+        if (isRootMessage(message)) {
+            return new BackendReportTarget(
+                    postSnapshot,
+                    List.of(),
+                    BackendReportTarget.TargetType.POST,
+                    post.id);
+        }
+
+        ArrayList<BackendReportTarget.CommentSnapshot> chain = new ArrayList<>();
+        Message cursor = message;
+        while (cursor != null && !isRootMessage(cursor)) {
+            chain.add(new BackendReportTarget.CommentSnapshot(
+                    cursor.id(), cursor.poster(), cursor.message()));
+            cursor = findMessage(post, getParentId(cursor));
+        }
+        Collections.reverse(chain);
+
+        return new BackendReportTarget(
+                postSnapshot,
+                chain,
+                BackendReportTarget.TargetType.COMMENT,
+                message.id());
+    }
+
     public static Post createPost(String topic, String body) {
         return createPost(topic, body, null);
     }
@@ -942,6 +998,34 @@ public final class AppData {
         }
 
         return ModerationTools.setHidden(message.id(), adminViewer.id(), !ModerationTools.isHidden(message.id()));
+    }
+
+    public static boolean setHidden(Message message, boolean hidden) {
+        ensurePopulated();
+        return adminMode
+                && message != null
+                && adminViewer != null
+                && ModerationTools.setHidden(message.id(), adminViewer.id(), hidden);
+    }
+
+    /** Backend post ids map to the local post id; comment ids map directly. */
+    public static Message findModerationMessage(UUID localTargetId) {
+        ensurePopulated();
+        if (localTargetId == null) {
+            return null;
+        }
+        Iterator<Post> posts = PostDAO.getInstance().getAll();
+        while (posts.hasNext()) {
+            Post post = posts.next();
+            if (localTargetId.equals(post.id)) {
+                return getRootMessage(post);
+            }
+            Message found = findMessage(post, localTargetId);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
     }
 
     public static int getPostVoteScore(Post post) {
@@ -2465,8 +2549,34 @@ public final class AppData {
         ModerationTools.addReport(queueExampleMessage.id(), treeSage.id(), now - minutes(53));
     }
 
+    /**
+     * Counts seeded content so each item gets a stable name.
+     *
+     * <p>Both languages run the identical sequence of seed calls — only the
+     * strings passed in differ — so the n-th post is the same post in either
+     * language and can safely share an id.
+     */
+    private static int seedSequence;
+
+    /**
+     * A repeatable id for seeded content.
+     *
+     * <p>These used to be {@code UUID.randomUUID()}, which meant the demo feed
+     * was a different set of ids after every restart and after every language
+     * switch. Anything holding an id across that boundary — the moderation
+     * backend's record of which local comment it mirrored — was pointing at
+     * content that no longer existed, so a reported comment could not be matched
+     * back to the feed and the review queue fell back to showing the copy stored
+     * on the server, in whatever language it was mirrored in.
+     */
+    private static UUID stableId(String kind, String key) {
+        return UUID.nameUUIDFromBytes(("de:" + kind + ":" + key).getBytes(StandardCharsets.UTF_8));
+    }
+
     private static User addUser(String username, User.Role role) {
-        User user = new User(UUID.randomUUID(), role, username, "demo1234");
+        // Usernames are identifiers rather than display names, so they are the
+        // same in both languages and make a good key.
+        User user = new User(stableId("user", username), role, username, "demo1234");
         UserDAO.getInstance().add(user);
         return user;
     }
@@ -2479,8 +2589,10 @@ public final class AppData {
             long timestamp,
             int voteScore
     ) {
-        Post post = new Post(UUID.randomUUID(), poster.id(), topic);
-        Message rootMessage = new Message(UUID.randomUUID(), poster.id(), post.id, timestamp, body);
+        // Keyed on position rather than on the title, which is translated.
+        Post post = new Post(stableId("post", forumKey + ":" + (++seedSequence)), poster.id(), topic);
+        Message rootMessage = new Message(
+                stableId("message", post.id + ":root"), poster.id(), post.id, timestamp, body);
         post.messages.insert(rootMessage);
         PostDAO.getInstance().add(post);
 
@@ -2499,7 +2611,9 @@ public final class AppData {
             String content,
             int voteScore
     ) {
-        Message message = new Message(UUID.randomUUID(), poster.id(), post.id, timestamp, content);
+        Message message = new Message(
+                stableId("message", post.id + ":" + (++seedSequence)),
+                poster.id(), post.id, timestamp, content);
         post.messages.insert(message);
         UUID rootId = getRootMessageId(post);
         UUID parentId = parent == null ? rootId : parent.id();
