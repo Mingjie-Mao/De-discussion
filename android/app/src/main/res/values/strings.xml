@@ -317,7 +317,7 @@
     <string name="queue_title">Pending Human Review</string>
     <string name="queue_empty">No reported replies right now. Switch to member view, report a comment, then come back here to review it.</string>
     <string name="backend_queue_loading">Loading analysed cases from the moderation service…</string>
-    <string name="backend_queue_count">Online review queue • %1$d cases ready</string>
+    <string name="backend_queue_count">%1$d cases ready</string>
     <string name="backend_queue_empty">No analysed cases are ready. A new report may still be in the automated-analysis queue; tap a sort button to refresh.</string>
     <string name="backend_queue_error">Could not load the online queue: %1$s</string>
     <string name="backend_queue_configure">Check the backend URL and enter administrator credentials in Settings.</string>
@@ -354,7 +354,7 @@
     <string name="moderation_status_awaiting">Awaiting review</string>
     <string name="moderation_status_resolved">Reviewed</string>
     <string name="backend_records_loading">Loading reviewed cases from the moderation service…</string>
-    <string name="backend_records_count">Reviewed by a human • %1$d cases</string>
+    <string name="backend_records_count">%1$d cases</string>
     <string name="backend_records_empty">Nothing has been reviewed yet. Decide a case in the moderation queue and it will appear here, where the decision can still be changed.</string>
     <string name="backend_records_error">Could not load reviewed cases: %1$s</string>
     <string name="backend_case_decided_meta">Outcome: %1$s • %2$d reports</string>
@@ -363,6 +363,9 @@
     <string name="backend_record_note">Decision revised in the De Android app.</string>
     <string name="backend_record_unchanged">That is already the outcome of this case.</string>
     <string name="backend_records_sort_recent">Latest First</string>
+    <string name="backend_records_filter_all">All</string>
+    <string name="backend_records_filter_count">%1$s · %2$d</string>
+    <string name="backend_records_empty_filtered">No case carries this outcome yet.</string>
     <string name="backend_records_sort_action">By Outcome</string>
 
     <string name="reported_meta_format">%1$s • %2$s</string>

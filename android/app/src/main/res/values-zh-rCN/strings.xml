@@ -317,7 +317,7 @@
     <string name="queue_title">人工待审核</string>
     <string name="queue_empty">当前没有被举报的评论。你可以先切到成员视图，举报一条评论，再回到这里检查。</string>
     <string name="backend_queue_loading">正在从审核服务加载已分析案件…</string>
-    <string name="backend_queue_count">在线审核队列 • %1$d 个案件待复核</string>
+    <string name="backend_queue_count">%1$d 个案件待复核</string>
     <string name="backend_queue_empty">当前没有已完成自动分析的案件。新举报可能仍在分析队列中；点击排序按钮可刷新。</string>
     <string name="backend_queue_error">无法加载在线队列：%1$s</string>
     <string name="backend_queue_configure">请检查后端地址，并在设置中填写管理员凭据。</string>
@@ -354,7 +354,7 @@
     <string name="moderation_status_awaiting">待人工审核</string>
     <string name="moderation_status_resolved">已审核</string>
     <string name="backend_records_loading">正在从审核服务加载已审核案件…</string>
-    <string name="backend_records_count">已完成人工审核 • %1$d 个案件</string>
+    <string name="backend_records_count">%1$d 个案件</string>
     <string name="backend_records_empty">还没有已审核的记录。在审核队列中处理一个案件后，它会出现在这里，并且仍然可以修改决定。</string>
     <string name="backend_records_error">无法加载已审核案件：%1$s</string>
     <string name="backend_case_decided_meta">处置：%1$s • %2$d 次举报</string>
@@ -363,6 +363,9 @@
     <string name="backend_record_note">已在 De Android App 中修改决定。</string>
     <string name="backend_record_unchanged">该案件当前的处置已经是这个结果。</string>
     <string name="backend_records_sort_recent">最近优先</string>
+    <string name="backend_records_filter_all">全部</string>
+    <string name="backend_records_filter_count">%1$s · %2$d</string>
+    <string name="backend_records_empty_filtered">还没有这种处置结果的案件。</string>
     <string name="backend_records_sort_action">按处置</string>
 
     <string name="reported_meta_format">%1$s • %2$s</string>

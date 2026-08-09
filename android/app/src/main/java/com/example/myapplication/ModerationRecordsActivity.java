@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -41,13 +42,18 @@ public class ModerationRecordsActivity extends AppCompatActivity {
     private static final String SORT_RECENT = "RECENT";
     private static final String SORT_ACTION = "ACTION";
 
+    /** Empty means every outcome; otherwise the {@code FinalAction} being shown. */
+    private static final String FILTER_ALL = "";
+
     private String sort = SORT_RECENT;
+    private String filter = FILTER_ALL;
     private int loadGeneration;
 
     private TextView subtitle;
     private TextView empty;
     private Button buttonRecent;
     private Button buttonByAction;
+    private LinearLayout filters;
     private RecyclerView recycler;
 
     @Override
@@ -71,6 +77,7 @@ public class ModerationRecordsActivity extends AppCompatActivity {
         empty = findViewById(R.id.textRecordsEmpty);
         buttonRecent = findViewById(R.id.buttonRecordsRecent);
         buttonByAction = findViewById(R.id.buttonRecordsByAction);
+        filters = findViewById(R.id.layoutRecordsFilters);
         recycler = findViewById(R.id.recyclerRecords);
 
         recycler.setLayoutManager(new LinearLayoutManager(this));
@@ -120,7 +127,17 @@ public class ModerationRecordsActivity extends AppCompatActivity {
                     return;
                 }
 
-                ArrayList<BackendReviewCase> sorted = new ArrayList<>(cases);
+                // Chips are built from the full set so their counts stay put
+                // while you move between them; only the list below is filtered.
+                renderFilters(cases);
+
+                ArrayList<BackendReviewCase> sorted = new ArrayList<>();
+                for (BackendReviewCase item : cases) {
+                    if (FILTER_ALL.equals(filter) || filter.equals(item.finalAction())) {
+                        sorted.add(item);
+                    }
+                }
+
                 if (SORT_ACTION.equals(sort)) {
                     sorted.sort(Comparator
                             .comparing(BackendReviewCase::finalAction)
@@ -130,7 +147,9 @@ public class ModerationRecordsActivity extends AppCompatActivity {
                 }
 
                 subtitle.setText(getString(R.string.backend_records_count, sorted.size()));
-                empty.setText(R.string.backend_records_empty);
+                empty.setText(FILTER_ALL.equals(filter)
+                        ? R.string.backend_records_empty
+                        : R.string.backend_records_empty_filtered);
                 empty.setVisibility(sorted.isEmpty() ? View.VISIBLE : View.GONE);
 
                 BackendReportedCaseAdapter adapter = new BackendReportedCaseAdapter(sorted);
@@ -153,6 +172,59 @@ public class ModerationRecordsActivity extends AppCompatActivity {
 
     private boolean isStale(int generation) {
         return generation != loadGeneration || isFinishing() || isDestroyed();
+    }
+
+    /**
+     * One chip per outcome, plus "all".
+     *
+     * <p>Every outcome gets a chip whether or not any case carries it, so the
+     * row does not reshuffle as decisions are made and a count of zero is itself
+     * an answer to "has anything been banned?".
+     */
+    private void renderFilters(List<BackendReviewCase> cases) {
+        filters.removeAllViews();
+
+        addFilterChip(cases, FILTER_ALL, getString(R.string.backend_records_filter_all));
+        for (String action : new String[] {"NONE", "HIDE", "DELETE", "BAN"}) {
+            addFilterChip(cases, action, ModerationLabels.action(this, action));
+        }
+    }
+
+    private void addFilterChip(List<BackendReviewCase> cases, String action, String label) {
+        int count = 0;
+        for (BackendReviewCase item : cases) {
+            if (FILTER_ALL.equals(action) || action.equals(item.finalAction())) {
+                count++;
+            }
+        }
+
+        boolean active = filter.equals(action);
+
+        TextView chip = new TextView(this);
+        chip.setText(getString(R.string.backend_records_filter_count, label, count));
+        chip.setTextSize(14);
+        chip.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        chip.setIncludeFontPadding(false);
+        chip.setGravity(android.view.Gravity.CENTER);
+        chip.setPadding(AppSheet.dp(this, 16), AppSheet.dp(this, 10),
+                AppSheet.dp(this, 16), AppSheet.dp(this, 10));
+        chip.setTextColor(ContextCompat.getColor(
+                this, active ? R.color.ink_primary : R.color.ink_secondary));
+        chip.setBackground(AppSheet.roundRect(
+                this,
+                active ? R.color.option_selected_fill : R.color.tab_bar_fill,
+                R.color.surface_border,
+                999,
+                1));
+        chip.setOnClickListener(v -> {
+            filter = action;
+            refresh();
+        });
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 0, AppSheet.dp(this, 8), 0);
+        filters.addView(chip, params);
     }
 
     private void updateSortButtons() {

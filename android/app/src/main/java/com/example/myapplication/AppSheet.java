@@ -118,15 +118,15 @@ final class AppSheet {
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(dp(context, 14), dp(context, 14), dp(context, 14), dp(context, 14));
-        // Selection is carried by the ink and the tick, not by a colour. The
-        // rest of the app is greyscale, and one saturated row in a sheet reads
-        // as a different product.
+        // Selection is a deeper fill and a tick. No outline: a heavy border
+        // changes the row's apparent size, so the list appeared to shift as the
+        // selection moved down it.
         row.setBackground(roundRect(
                 context,
-                R.color.surface_alt,
-                selected ? R.color.ink_primary : R.color.surface_border,
+                selected ? R.color.option_selected_fill : R.color.surface_alt,
+                R.color.surface_border,
                 20,
-                selected ? 2 : 1));
+                1));
         row.setOnClickListener(v -> onClick.run());
 
         int foreground = selected ? R.color.ink_primary : R.color.ink_secondary;

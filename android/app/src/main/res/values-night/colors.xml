@@ -7,6 +7,7 @@
     <color name="surface">#23262B</color>
     <color name="surface_alt">#2C3036</color>
     <color name="surface_border">#393E46</color>
+    <color name="option_selected_fill">#414750</color>
 
     <color name="ink_primary">#F5F7FA</color>
     <color name="ink_secondary">#B8BDC7</color>
