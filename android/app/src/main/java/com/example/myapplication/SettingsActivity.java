@@ -68,23 +68,19 @@ public class SettingsActivity extends AppCompatActivity {
         buttonBack.setOnClickListener(v -> finish());
         rowLanguage.setOnClickListener(v -> showLanguageDialog());
         rowTheme.setOnClickListener(v -> showThemeDialog());
-        layoutAdmin.setVisibility(View.VISIBLE);
-        textSettingsMode.setText(AppData.isAdminMode() ? R.string.mode_admin : R.string.mode_member);
-        buttonQueue.setVisibility(AppData.isAdminMode() ? View.VISIBLE : View.GONE);
-        buttonQueue.setOnClickListener(v -> startActivity(new Intent(this, ModerationQueueActivity.class)));
-        // The records screen reads the server's decision history, so it is only
-        // meaningful to an administrator with the online service switched on.
-        buttonRecords.setVisibility(
-                AppData.isAdminMode() && BackendRuntime.from(this).config().isEnabled()
-                        ? View.VISIBLE
-                        : View.GONE);
-        buttonRecords.setOnClickListener(
-                v -> startActivity(new Intent(this, ModerationRecordsActivity.class)));
+        layoutAdmin.setVisibility(UiPreferences.isAdminSession(this) ? View.VISIBLE : View.GONE);
+        textSettingsMode.setText(UiPreferences.isAdminSession(this)
+                ? getString(R.string.mode_admin) + " · " + BackendRuntime.from(this).admin().session().username()
+                : getString(R.string.mode_member));
+        buttonQueue.setVisibility(UiPreferences.isAdminSession(this) ? View.VISIBLE : View.GONE);
+        buttonQueue.setOnClickListener(v -> startActivity(new Intent(this, AdminReviewActivity.class)));
+        buttonRecords.setVisibility(UiPreferences.isAdminSession(this) ? View.VISIBLE : View.GONE);
+        buttonRecords.setOnClickListener(v -> startActivity(new Intent(this, AdminReviewActivity.class).putExtra("queue", 1)));
         buttonBackend.setOnClickListener(v -> showBackendDialog());
         buttonSwitchAccount.setOnClickListener(v -> signOutToLogin());
         buttonLogout.setOnClickListener(v -> signOutToLogin());
         refreshLabels();
-        refreshBackendStatus();
+        if (UiPreferences.isAdminSession(this)) refreshBackendStatus();
     }
 
     private void refreshLabels() {
@@ -109,9 +105,9 @@ public class SettingsActivity extends AppCompatActivity {
                 },
                 chinese ? 1 : 0,
                 which -> {
-                    UiPreferences.setLanguageTag(this, which == 1 ? "zh-CN" : "en");
-                    UiPreferences.applyAppearance(this);
-                    recreate();
+                    AccountProfileSync.update(this, backend.BackendUserSession.body("languageTag", which == 1 ? "zh-CN" : "en"), () -> {
+                        UiPreferences.applyAppearance(this); recreate();
+                    });
                 });
     }
 
@@ -125,9 +121,9 @@ public class SettingsActivity extends AppCompatActivity {
                 },
                 UiPreferences.isDarkTheme(this) ? 1 : 0,
                 which -> {
-                    UiPreferences.setDarkTheme(this, which == 1);
-                    UiPreferences.applyAppearance(this);
-                    recreate();
+                    AccountProfileSync.update(this, backend.BackendUserSession.body("theme", which == 1 ? "dark" : "light"), () -> {
+                        UiPreferences.applyAppearance(this); recreate();
+                    });
                 });
     }
 
@@ -173,55 +169,24 @@ public class SettingsActivity extends AppCompatActivity {
         LinearLayout content = AppSheet.sheet(
                 this, getString(R.string.backend_settings_title), null, () -> holder[0].dismiss());
 
-        boolean[] enabled = {config.isEnabled()};
-        LinearLayout toggleHost = new LinearLayout(this);
-        toggleHost.setOrientation(LinearLayout.VERTICAL);
-        content.addView(toggleHost, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        // Rebuilt on tap rather than mutated, because the selected look is baked
-        // into the row's background when it is created.
-        Runnable[] renderToggle = new Runnable[1];
-        renderToggle[0] = () -> {
-            toggleHost.removeAllViews();
-            toggleHost.addView(AppSheet.optionRow(
-                    this,
-                    R.drawable.ic_shield_outline_24,
-                    getString(R.string.backend_enabled),
-                    enabled[0],
-                    () -> {
-                        enabled[0] = !enabled[0];
-                        renderToggle[0].run();
-                    }));
-        };
-        renderToggle[0].run();
-
         EditText baseUrl = sheetField(
                 R.string.backend_url_hint,
                 config.baseUrl(),
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-        EditText adminUsername = sheetField(
-                R.string.backend_admin_username_hint, config.adminUsername(), InputType.TYPE_CLASS_TEXT);
-        EditText adminPassword = sheetField(
-                R.string.backend_admin_password_hint,
-                config.adminPassword(),
-                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
         content.addView(baseUrl);
-        content.addView(adminUsername);
-        content.addView(adminPassword);
-        content.addView(AppSheet.note(this, getString(R.string.backend_password_session_note)));
+        content.addView(AppSheet.note(this, getString(R.string.backend_admin_session_note)));
 
         LinearLayout actions = AppSheet.actions(this);
         actions.addView(AppSheet.button(
                 this, getString(R.string.action_cancel), false, () -> holder[0].dismiss()));
         actions.addView(AppSheet.button(this, getString(R.string.action_save), true, () -> {
             try {
-                config.setEnabled(enabled[0]);
+                String oldUrl = config.baseUrl();
                 config.setBaseUrl(baseUrl.getText().toString());
-                config.setAdminCredentials(
-                        adminUsername.getText().toString(), adminPassword.getText().toString());
+                config.setEnabled(true);
                 holder[0].dismiss();
-                refreshBackendStatus();
+                if (!oldUrl.equals(config.baseUrl())) signOutToLogin();
+                else refreshBackendStatus();
             } catch (IllegalArgumentException error) {
                 Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
             }
@@ -253,14 +218,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void refreshBackendStatus() {
         BackendRuntime runtime = BackendRuntime.from(this);
-
-        // Recomputed here rather than only at startup, so switching the service
-        // off in the dialog takes the records entry away with it instead of
-        // leaving a button that can only report an error.
-        if (buttonRecords != null) {
-            buttonRecords.setVisibility(
-                    AppData.isAdminMode() && runtime.config().isEnabled() ? View.VISIBLE : View.GONE);
-        }
 
         if (!runtime.config().isEnabled()) {
             textSettingsBackendStatus.setText(R.string.backend_status_offline);

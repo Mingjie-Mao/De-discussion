@@ -55,6 +55,9 @@ final class ModerationLabels {
             case "ANALYSING" -> context.getString(R.string.moderation_status_analysing);
             case "AWAITING_REVIEW" -> context.getString(R.string.moderation_status_awaiting);
             case "RESOLVED" -> context.getString(R.string.moderation_status_resolved);
+            case "PENDING" -> context.getString(R.string.admin_appeal_pending);
+            case "UPHELD" -> context.getString(R.string.admin_appeal_upheld);
+            case "OVERTURNED" -> context.getString(R.string.admin_appeal_overturned);
             default -> status;
         };
     }

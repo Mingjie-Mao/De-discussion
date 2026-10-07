@@ -63,6 +63,14 @@ public class BackendExceptionTest {
     }
 
     @Test
+    public void gatewayAndTransportFailuresKeepTheOriginalWriteRequest() {
+        for (int status : new int[]{0, 500, 502, 503, 504})
+            assertTrue(new BackendException(status, "Failed").hasAmbiguousWriteOutcome());
+        for (int status : new int[]{400, 401, 403, 404, 409, 429})
+            assertFalse(new BackendException(status, "Rejected").hasAmbiguousWriteOutcome());
+    }
+
+    @Test
     public void recognisesTheStatusesTheIntegrationBranchesOn() {
         assertTrue(BackendException.fromResponse(401, "").isUnauthorised());
         assertTrue(BackendException.fromResponse(403, "").isUnauthorised());

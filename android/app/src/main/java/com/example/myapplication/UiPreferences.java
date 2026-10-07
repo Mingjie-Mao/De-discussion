@@ -36,11 +36,46 @@ public final class UiPreferences {
     private UiPreferences() {
     }
 
+    public static boolean handleExpiredSession(android.app.Activity activity, backend.BackendException error) {
+        if (!handleExpiredSession((Context) activity, error)) return false;
+        activity.finish();
+        return true;
+    }
+
+    public static boolean handleExpiredSession(Context context, backend.BackendException error) {
+        if (!error.isUnauthorised() || isLoggedIn(context)) return false;
+        // Concurrent failed requests may arrive after the first redirect.
+        if (!prefs(context).getBoolean(KEY_LOGGED_IN, false)) return true;
+        clearLoginSession(context);
+        android.content.Intent login = new android.content.Intent(context, LoginActivity.class);
+        login.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(login);
+        return true;
+    }
+
     public static void applyAppearance(Context context) {
         AppCompatDelegate.setDefaultNightMode(isDarkTheme(context)
                 ? AppCompatDelegate.MODE_NIGHT_YES
                 : AppCompatDelegate.MODE_NIGHT_NO);
-        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(getLanguageTag(context)));
+        if(android.os.Build.VERSION.SDK_INT >= 33) {
+            // AppCompat 1.6 looks up an active delegate on API 33+. There may be
+            // none yet during a restored account's cold start; use the context directly.
+            android.app.LocaleManager manager=context.getSystemService(android.app.LocaleManager.class);
+            android.os.LocaleList locales=android.os.LocaleList.forLanguageTags(getLanguageTag(context));
+            if(manager!=null&&!locales.equals(manager.getApplicationLocales())) manager.setApplicationLocales(locales);
+        } else AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(getLanguageTag(context)));
+    }
+
+    public static void applyServerProfile(Context context, org.json.JSONObject profile) {
+        if (!profile.has("id")) return;
+        String avatar = profile.isNull("avatarUrl") ? null : profile.optString("avatarUrl", null);
+        if (avatar != null && avatar.startsWith("/api/media/")) avatar = backend.BackendRuntime.from(context).config().baseUrl() + avatar;
+        prefs(context).edit().putString(KEY_UID, profile.optString("id"))
+                .putString(KEY_NICKNAME, profile.optString("displayName", profile.optString("username")))
+                .putInt(KEY_AVATAR_INDEX, profile.optInt("avatarColor", 0))
+                .putString(KEY_AVATAR_IMAGE_URI, avatar)
+                .putString(KEY_LANGUAGE_TAG, profile.optString("languageTag", "en"))
+                .putBoolean(KEY_DARK_THEME, "dark".equals(profile.optString("theme", "light"))).commit();
     }
 
     public static String getProfileUid(Context context) {
@@ -96,11 +131,19 @@ public final class UiPreferences {
     }
 
     public static boolean isLoggedIn(Context context) {
-        return prefs(context).getBoolean(KEY_LOGGED_IN, false);
+        return prefs(context).getBoolean(KEY_LOGGED_IN, false)
+                && (prefs(context).getBoolean(KEY_SESSION_ADMIN, false)
+                    ? backend.BackendRuntime.from(context).admin().session().hasSession()
+                    : backend.BackendRuntime.from(context).user().session().hasSession());
+    }
+
+    public static boolean lastLoginWasAdmin(Context context) {
+        return prefs(context).getBoolean(KEY_SESSION_ADMIN, false);
     }
 
     public static boolean isAdminSession(Context context) {
-        return prefs(context).getBoolean(KEY_SESSION_ADMIN, false);
+        return prefs(context).getBoolean(KEY_SESSION_ADMIN, false)
+                && backend.BackendRuntime.from(context).admin().session().hasSession();
     }
 
     public static void setLoginSession(Context context, boolean adminSession) {
@@ -119,6 +162,8 @@ public final class UiPreferences {
     }
 
     public static void clearLoginSession(Context context) {
+        backend.BackendRuntime.from(context).admin().clear();
+        backend.BackendRuntime.from(context).user().clear();
         prefs(context).edit()
                 .putBoolean(KEY_LOGGED_IN, false)
                 .remove(KEY_SESSION_ADMIN)

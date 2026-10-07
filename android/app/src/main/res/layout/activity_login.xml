@@ -10,7 +10,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="top"
         android:orientation="vertical"
         android:paddingStart="22dp"
@@ -53,6 +53,7 @@
 
             <EditText
                 android:id="@+id/inputLoginPassword"
+                android:saveEnabled="false"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:layout_marginTop="12dp"
@@ -104,11 +105,22 @@
                     app:cornerRadius="14dp" />
             </LinearLayout>
 
+            <EditText
+                android:id="@+id/inputLoginServer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="@string/backend_url_hint"
+                android:inputType="textUri"
+                android:singleLine="true"
+                android:visibility="gone" />
+
             <TextView
+                android:id="@+id/textLoginHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="@string/login_demo_hint"
+                android:text="@string/member_login_hint"
                 android:textAppearance="?attr/textAppearanceBodySmall"
                 android:textColor="@color/ink_tertiary" />
 
@@ -124,6 +136,24 @@
                 android:textStyle="bold"
                 app:backgroundTint="@color/ink_primary"
                 app:cornerRadius="18dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonRegister"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/member_create_account"
+                android:textAllCaps="false" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/textDemoAccounts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:text="@string/login_demo_accounts"
+            android:textColor="@color/ink_secondary"
+            android:textSize="14sp" />
     </LinearLayout>
 </ScrollView>

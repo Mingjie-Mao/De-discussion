@@ -20,14 +20,35 @@ import java.util.UUID;
 import dao.model.Post;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
-    private final List<Post> posts;
+    private final java.util.ArrayList<Post> posts;
+    private final java.util.Map<UUID,Long> stableIds=new java.util.HashMap<>();
+    private long nextStableId;
     private OnClickListener onClickListener;
     private OnVoteClickListener onVoteClickListener;
     private OnUserClickListener onUserClickListener;
     private OnBookmarkClickListener onBookmarkClickListener;
 
     public PostAdapter(List<Post> posts) {
-        this.posts = posts;
+        this.posts = new java.util.ArrayList<>(posts);
+        setHasStableIds(true);
+    }
+
+    @Override public long getItemId(int position) {
+        return stableIds.computeIfAbsent(posts.get(position).id,key -> nextStableId++);
+    }
+
+    /** Keep visible holders and their loaded images across social and translation updates. */
+    public void replacePosts(List<Post> values) {
+        var old=new java.util.ArrayList<>(posts);
+        var next=new java.util.ArrayList<>(values);
+        var diff=androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+            public int getOldListSize(){return old.size();}
+            public int getNewListSize(){return next.size();}
+            public boolean areItemsTheSame(int a,int b){return old.get(a).id.equals(next.get(b).id);}
+            public boolean areContentsTheSame(int a,int b){return false;}
+            public Object getChangePayload(int a,int b){return "refresh";}
+        });
+        posts.clear();posts.addAll(next);diff.dispatchUpdatesTo(this);
     }
 
     public void setOnClickListener(OnClickListener onClickListener) {
@@ -191,8 +212,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             avatarBg.setColor(AppData.getAvatarColor(itemView.getContext(), post.poster));
             textPostPosterAvatar.setBackground(avatarBg);
             textPostPosterAvatar.setText(AppData.getAvatarLetter(post.poster));
-            textPostTitle.setText(AppData.getPostTitle(post));
-            textPostBody.setText(AppData.getPostBodyPreview(post));
+            AvatarRenderer.display(textPostPosterAvatar, AppData.getAvatarUrl(itemView.getContext(), post.poster),
+                    AppData.getAvatarLetter(post.poster), AppData.getAvatarColor(itemView.getContext(), post.poster));
+            textPostTitle.setText(AppData.getPostDisplayTitle(itemView.getContext(), post));
+            textPostBody.setText(AppData.getPostDisplayBodyPreview(itemView.getContext(), post));
             String imageUri = AppData.getPostImageUri(post);
             if (imageUri == null || imageUri.isEmpty()) {
                 imagePostAttachment.setImageDrawable(null);
@@ -200,12 +223,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                 imagePostAttachment.setVisibility(View.GONE);
             } else {
                 Uri attachmentUri = Uri.parse(imageUri);
-                imagePostAttachment.setImageURI(attachmentUri);
+                RemoteImageLoader.display(imagePostAttachment, attachmentUri);
                 imagePostAttachment.setOnClickListener(v ->
                         ImageAttachmentViewer.show(itemView.getContext(), attachmentUri, R.string.post_image_attachment));
                 imagePostAttachment.setVisibility(View.VISIBLE);
             }
             textPostScore.setText(String.valueOf(AppData.getPostVoteScore(post)));
+            boolean votePending = ServerFeatures.votePending("posts", post.id);
+            buttonPostUpvote.setEnabled(!votePending);
+            buttonPostDownvote.setEnabled(!votePending);
+            textPostScore.setAlpha(votePending ? .6f : 1f);
+
             textPostCommentsCount.setText(AppData.getPostReplyCountLabel(itemView.getContext(), post));
             textPostBookmarkCount.setText(AppData.getPostBookmarkCountLabel(itemView.getContext(), post));
 

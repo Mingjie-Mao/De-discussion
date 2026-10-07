@@ -1,0 +1,19 @@
+gradle.projectsEvaluated {
+    def p = gradle.rootProject.findProject(':app')
+    def unit = p.tasks.named('testDebugUnitTest')
+    def compiled = new File(gradle.rootProject.projectDir, '../.local/legacy-export-classes')
+    p.tasks.register('compileLegacyExport', JavaCompile) {
+        dependsOn ':app:compileDebugUnitTestJavaWithJavac'
+        source = p.files(new File(gradle.rootProject.projectDir, '../scripts/LegacyDataExport.java'))
+        classpath = unit.get().classpath
+        destinationDirectory = compiled
+        sourceCompatibility = '17'
+        targetCompatibility = '17'
+    }
+    p.tasks.register('exportLegacyData', JavaExec) {
+        dependsOn 'compileLegacyExport'
+        classpath = p.files(compiled) + unit.get().classpath
+        mainClass = 'LegacyDataExport'
+        args new File(gradle.rootProject.projectDir, '../.local/legacy-forum-data.json').absolutePath
+    }
+}

@@ -70,15 +70,20 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
 
         void display(AppData.AppNotification notification) {
-            textNotificationAvatar.setText(AppData.getAvatarLetter(itemView.getContext(), notification.actorId()));
+            boolean remote=notification.remoteNotificationId()!=null;
+            boolean social=notification.type()==AppData.NotificationType.LIKE||notification.type()==AppData.NotificationType.BOOKMARK
+                    ||notification.type()==AppData.NotificationType.COMMENT||notification.type()==AppData.NotificationType.MENTION||notification.type()==AppData.NotificationType.FOLLOW;
+            String source=notification.title()==null||notification.title().isBlank()?"?":notification.title().trim().split("\\s+",2)[0];
+            textNotificationAvatar.setText(remote?(social?source.substring(0,source.offsetByCodePoints(0,1)).toUpperCase(java.util.Locale.ROOT):"M"):AppData.getAvatarLetter(itemView.getContext(),notification.actorId()));
             GradientDrawable avatarBackground = (GradientDrawable) ContextCompat
                     .getDrawable(itemView.getContext(), R.drawable.bg_avatar_circle)
                     .mutate();
-            avatarBackground.setColor(AppData.getAvatarColor(itemView.getContext(), notification.actorId()));
+            avatarBackground.setColor(remote?UiPreferences.getGoogleColor(Math.floorMod(source.hashCode(),UiPreferences.getGoogleColorCount())):AppData.getAvatarColor(itemView.getContext(),notification.actorId()));
             textNotificationAvatar.setBackground(avatarBackground);
             textNotificationTitle.setText(notification.title());
             textNotificationTime.setText(AppData.formatTimestamp(notification.timestamp()));
             textNotificationBody.setText(notification.body());
+            textNotificationBody.setVisibility(java.util.Objects.equals(notification.title(),notification.body())?View.GONE:View.VISIBLE);
 
             int iconRes = R.drawable.ic_comment_outline_24;
             if (notification.type() == AppData.NotificationType.LIKE) {
@@ -87,9 +92,14 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 iconRes = R.drawable.ic_bookmark_filled_24;
             } else if (notification.type() == AppData.NotificationType.MENTION) {
                 iconRes = R.drawable.ic_user_24;
+            } else if (notification.type() == AppData.NotificationType.MODERATION
+                    || notification.type() == AppData.NotificationType.MODERATION_APPEALABLE
+                    || notification.type() == AppData.NotificationType.APPEAL) {
+                iconRes = R.drawable.ic_shield_outline_24;
             }
             imageNotificationType.setImageResource(iconRes);
             imageNotificationType.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.ink_primary));
+            itemView.setAlpha(notification.read() ? 0.72f : 1.0f);
         }
     }
 }

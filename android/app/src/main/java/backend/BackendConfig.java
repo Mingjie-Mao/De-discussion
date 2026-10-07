@@ -3,35 +3,38 @@ package backend;
 /**
  * Where the moderation backend is and whether to talk to it at all.
  *
- * <p>Enabled by default for the development build, whose default points at the
- * host machine from an Android emulator. Network work is asynchronous and a
+ * <p>Enabled by default and connected to the hosted demonstration API. Network work is asynchronous and a
  * failed submission is shown honestly rather than silently becoming a local-only
- * report. The switch remains available for the original offline demo.
+ * report. The app always enables the connection when signing in.
  */
 public final class BackendConfig {
 
     /**
-     * The emulator's route to the host machine. A device on the same network
-     * needs the host's LAN address instead, which is why this is editable in
-     * Settings rather than compiled in.
+     * The hosted demo works on physical devices too. Local development can
+     * override this with http://10.0.2.2:8080 in a debug build.
      */
-    public static final String DEFAULT_BASE_URL = "http://10.0.2.2:8080";
+    public static final String DEFAULT_BASE_URL = "https://p01--de-moderation-api--z48dx52bgz5k.code.run";
+    public static final String RENDER_FALLBACK_URL = "https://de-moderation-api-demo.onrender.com";
+    private static final String KEY_DEMO_HOST_MIGRATED = "northflank_url_migrated_v1";
 
     private static final String KEY_ENABLED = "enabled";
     private static final String KEY_BASE_URL = "base_url";
-    private static final String KEY_ADMIN_USERNAME = "admin_username";
+    private static final String LEGACY_ADMIN_USERNAME = "admin_username";
     private static final String KEY_ADMIN_PASSWORD = "admin_password";
-
-    /** Administrator secrets are session-only; they are never written to disk. */
-    private volatile String sessionAdminPassword = "";
 
     private final KeyValueStore store;
 
     public BackendConfig(KeyValueStore store) {
         this.store = store;
-        // Remove plaintext credentials written by an earlier unfinished version
-        // of the integration. The username is harmless to retain; the password
-        // is deliberately re-entered after each process restart.
+        if (!Boolean.parseBoolean(store.get(KEY_DEMO_HOST_MIGRATED, "false"))) {
+            String saved = trimTrailingSlash(store.get(KEY_BASE_URL, "").trim());
+            if (RENDER_FALLBACK_URL.equals(saved)) store.put(KEY_BASE_URL, DEFAULT_BASE_URL);
+            // Preserve custom hosts, and permit a later explicit rollback to Render.
+            store.put(KEY_DEMO_HOST_MIGRATED, "true");
+        }
+        // Administrator passwords are never persisted. Scrub the plaintext
+        // credentials left by earlier demo builds during startup.
+        store.remove(LEGACY_ADMIN_USERNAME);
         store.remove(KEY_ADMIN_PASSWORD);
     }
 
@@ -58,29 +61,6 @@ public final class BackendConfig {
             throw new IllegalArgumentException("Backend URL must start with http:// or https://.");
         }
         store.put(KEY_BASE_URL, value);
-    }
-
-    /**
-     * The administrator credentials the app signs in with to read the case
-     * queue. Demo-only by construction: shipping administrator credentials to a
-     * client is exactly what a real deployment must not do, which is why these
-     * are typed in on the device rather than built into the app.
-     */
-    public String adminUsername() {
-        return store.get(KEY_ADMIN_USERNAME, "");
-    }
-
-    public String adminPassword() {
-        return sessionAdminPassword;
-    }
-
-    public void setAdminCredentials(String username, String password) {
-        store.put(KEY_ADMIN_USERNAME, username == null ? "" : username.trim());
-        sessionAdminPassword = password == null ? "" : password;
-    }
-
-    public boolean hasAdminCredentials() {
-        return !adminUsername().isEmpty() && !adminPassword().isEmpty();
     }
 
     static String trimTrailingSlash(String url) {

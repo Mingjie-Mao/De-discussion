@@ -46,6 +46,10 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import backend.BackendRuntime;
+import backend.BackendException;
+import backend.BackendModerationGateway;
+
 public class MainActivity extends AppCompatActivity {
     private static final String EXTRA_START_PAGE = "start_page";
     private static final String STATE_CURRENT_PAGE = "current_page";
@@ -95,18 +99,16 @@ public class MainActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String> pickAvatarImageLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 if (uri == null) return;
-                try {
-                    Uri local = ImageStorage.copyToLocalImage(this, uri);
-                    UiPreferences.setAvatarImageUri(this, local.toString());
+                AccountProfileSync.avatar(this, uri, () -> {
                     notifyPagesChanged();
-                } catch (java.io.IOException ignored) {
-                    Toast.makeText(this, getString(R.string.toast_action_failed), Toast.LENGTH_SHORT).show();
-                }
+                    Toast.makeText(this, R.string.toast_profile_saved, Toast.LENGTH_SHORT).show();
+                });
             });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
+        AccountProfileSync.applyCached(this);
         UiPreferences.applyAppearance(this);
         super.onCreate(savedInstanceState);
         if (!UiPreferences.isLoggedIn(this)) {
@@ -124,7 +126,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         AppData.ensurePopulated();
-        AppData.setAdminMode(UiPreferences.isAdminSession(this));
+        AppData.setOnlineMode(true);
+        AppData.bindBackendOrigin(BackendRuntime.from(this).config().baseUrl());
+        if (!bindSelectedAccount()) return;
 
         drawerRoot = findViewById(R.id.drawerRoot);
         mainContent = findViewById(R.id.mainContent);
@@ -198,8 +202,37 @@ public class MainActivity extends AppCompatActivity {
 
         int startPage = resolveStartPage(savedInstanceState);
         setPage(startPage, false);
+        ServerFeatures.init(this);
+        ServerFeatures.observe(this, this::refreshAllPages);
         refreshDrawerUi();
         notifyPagesChanged();
+    }
+
+    /** A refresh can revoke the session between the login guard and activity startup. */
+    private boolean bindSelectedAccount() {
+        BackendRuntime runtime = BackendRuntime.from(this);
+        boolean administrator = UiPreferences.isAdminSession(this);
+        backend.BackendUserSession session = administrator
+                ? runtime.admin().session() : runtime.user().session();
+        try {
+            // Binding and reading identity must use the same session state.
+            synchronized (session) {
+                if (administrator) runtime.bindAdministratorAccount();
+                else runtime.bindMemberAccount();
+                java.util.UUID id = java.util.UUID.fromString(session.userId());
+                AppData.setAdminMode(administrator);
+                if (administrator) AppData.setServerAdministrator(id, session.username());
+                else AppData.setServerMember(id, session.username());
+            }
+            return true;
+        } catch (backend.BackendException error) {
+            if (!error.isUnauthorised()) throw error;
+            UiPreferences.clearLoginSession(this);
+            startActivity(new Intent(this, LoginActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            finish();
+            return false;
+        }
     }
 
     @Override
@@ -210,10 +243,18 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
-        AppData.setAdminMode(UiPreferences.isAdminSession(this));
+        if (!bindSelectedAccount()) return;
+        AccountProfileSync.fetch(this, () -> {
+            UiPreferences.applyAppearance(this);
+            if (isFinishing() || isDestroyed()) return;
+            refreshDrawerUi(); notifyPagesChanged();
+        });
+        ServerFeatures.init(this); ServerFeatures.observe(this, this::refreshAllPages);
         refreshDrawerUi();
         notifyPagesChanged();
     }
+
+    @Override protected void onPause() { ServerFeatures.remove(this); super.onPause(); }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -230,9 +271,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toggleViewerMode() {
-        AppData.toggleViewerMode();
-        refreshDrawerUi();
-        notifyPagesChanged();
+        signOutToLogin();
     }
 
     public void signOutToLogin() {
@@ -259,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         drawerRoot.closeDrawer(GravityCompat.START);
-        startActivity(new Intent(getApplicationContext(), ModerationQueueActivity.class));
+        startActivity(new Intent(this, AdminReviewActivity.class));
     }
 
     public void showAvatarPicker() {
@@ -346,11 +385,10 @@ public class MainActivity extends AppCompatActivity {
                         index == selected ? R.color.accent_strong : R.color.surface_border));
                 swatch.setBackground(swatchBg);
                 swatch.setOnClickListener(v -> {
-                    UiPreferences.setAvatarIndex(this, index);
-                    UiPreferences.setAvatarImageUri(this, null);
-                    dialog.dismiss();
-                    notifyPagesChanged();
-                    Toast.makeText(this, getString(R.string.toast_profile_saved), Toast.LENGTH_SHORT).show();
+                    AccountProfileSync.update(this, backend.BackendUserSession.body("avatarColor", index, "removeAvatar", true), () -> {
+                        dialog.dismiss(); notifyPagesChanged();
+                        Toast.makeText(this, R.string.toast_profile_saved, Toast.LENGTH_SHORT).show();
+                    });
                 });
 
                 LinearLayout.LayoutParams swatchParams = new LinearLayout.LayoutParams(dp(38), dp(38));
@@ -425,10 +463,10 @@ public class MainActivity extends AppCompatActivity {
                 input.setError(getString(R.string.dialog_nickname_hint));
                 return;
             }
-            UiPreferences.setProfileNickname(this, value);
-            notifyPagesChanged();
-            Toast.makeText(this, getString(R.string.toast_profile_saved), Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
+            AccountProfileSync.update(this, backend.BackendUserSession.body("displayName", value), () -> {
+                dialog.dismiss(); notifyPagesChanged();
+                Toast.makeText(this, R.string.toast_profile_saved, Toast.LENGTH_SHORT).show();
+            });
         });
 
         buttonRow.addView(cancelBtn);
@@ -439,6 +477,12 @@ public class MainActivity extends AppCompatActivity {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
+    }
+
+    private void saveNicknameLocally(String value) {
+        UiPreferences.setProfileNickname(this, value);
+        notifyPagesChanged();
+        Toast.makeText(this, getString(R.string.toast_profile_saved), Toast.LENGTH_SHORT).show();
     }
 
     public void showSettingsDialog() {
@@ -479,14 +523,10 @@ public class MainActivity extends AppCompatActivity {
                     boolean changed = !newLanguage.equals(UiPreferences.getLanguageTag(this))
                             || newDarkTheme != UiPreferences.isDarkTheme(this);
 
-                    UiPreferences.setLanguageTag(this, newLanguage);
-                    UiPreferences.setDarkTheme(this, newDarkTheme);
-                    dialog.dismiss();
-                    drawerRoot.closeDrawer(GravityCompat.START);
-
-                    if (changed) {
-                        restartForAppearanceChange();
-                    }
+                    AccountProfileSync.update(this, backend.BackendUserSession.body("languageTag", newLanguage, "theme", newDarkTheme ? "dark" : "light"), () -> {
+                        dialog.dismiss(); drawerRoot.closeDrawer(GravityCompat.START);
+                        if (changed) restartForAppearanceChange();
+                    });
                 }));
 
         dialog.show();
@@ -535,9 +575,9 @@ public class MainActivity extends AppCompatActivity {
                 if (rbIds[i] == checkedId) {
                     String langTag = langTags[i];
                     boolean changed = !langTag.equals(UiPreferences.getLanguageTag(this));
-                    UiPreferences.setLanguageTag(this, langTag);
-                    dialog.dismiss();
-                    if (changed) restartForAppearanceChange();
+                    AccountProfileSync.update(this, backend.BackendUserSession.body("languageTag", langTag), () -> {
+                        dialog.dismiss(); if (changed) restartForAppearanceChange();
+                    });
                     return;
                 }
             }
@@ -610,9 +650,9 @@ public class MainActivity extends AppCompatActivity {
                 if (rbIds[i] == checkedId) {
                     boolean isDark = darkFlags[i];
                     boolean changed = isDark != UiPreferences.isDarkTheme(this);
-                    UiPreferences.setDarkTheme(this, isDark);
-                    dialog.dismiss();
-                    if (changed) restartForAppearanceChange();
+                    AccountProfileSync.update(this, backend.BackendUserSession.body("theme", isDark ? "dark" : "light"), () -> {
+                        dialog.dismiss(); if (changed) restartForAppearanceChange();
+                    });
                     return;
                 }
             }

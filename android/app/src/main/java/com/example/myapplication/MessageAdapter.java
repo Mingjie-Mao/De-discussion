@@ -33,8 +33,24 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     }
 
     public MessageAdapter(List<Message> messages, Set<UUID> expandedTopLevelComments) {
-        this.messages = messages;
+        this.messages = new java.util.ArrayList<>(messages);
         this.expandedTopLevelComments = expandedTopLevelComments;
+    }
+
+    public void updateMessages(List<Message> next) {
+        List<Message> old = new java.util.ArrayList<>(messages);
+        androidx.recyclerview.widget.DiffUtil.DiffResult diff =
+            androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+                public int getOldListSize() { return old.size(); }
+                public int getNewListSize() { return next.size(); }
+                public boolean areItemsTheSame(int before, int after) {
+                    return old.get(before).id().equals(next.get(after).id());
+                }
+                // Vote/expansion projections are outside Message: rebind retained
+                // rows while preserving the adapter and scroll position.
+                public boolean areContentsTheSame(int before, int after) { return false; }
+            });
+        messages.clear(); messages.addAll(next); diff.dispatchUpdatesTo(this);
     }
 
     public void setOnMessageActionListener(OnMessageActionListener onMessageActionListener) {
@@ -235,6 +251,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             GradientDrawable avatarBackground = (GradientDrawable) ContextCompat.getDrawable(itemView.getContext(), R.drawable.bg_avatar_circle).mutate();
             avatarBackground.setColor(AppData.getAvatarColor(itemView.getContext(), message.poster()));
             textMessageAvatar.setBackground(avatarBackground);
+            AvatarRenderer.display(textMessageAvatar, AppData.getAvatarUrl(itemView.getContext(), message.poster()),
+                    AppData.getAvatarLetter(itemView.getContext(), message.poster()), AppData.getAvatarColor(itemView.getContext(), message.poster()));
 
             textMessageAuthor.setText(AppData.getMessageAuthorDisplayName(itemView.getContext(), message));
             textMessageTimestamp.setText(AppData.formatTimestamp(message.timestamp()));
@@ -251,12 +269,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 imageMessageAttachment.setVisibility(View.GONE);
             } else {
                 Uri attachmentUri = Uri.parse(imageUri);
-                imageMessageAttachment.setImageURI(attachmentUri);
+                RemoteImageLoader.display(imageMessageAttachment, attachmentUri);
                 imageMessageAttachment.setOnClickListener(v ->
                         ImageAttachmentViewer.show(itemView.getContext(), attachmentUri, R.string.message_image_attachment));
                 imageMessageAttachment.setVisibility(View.VISIBLE);
             }
             textMessageScore.setText(String.valueOf(AppData.getMessageVoteScore(message)));
+            boolean votePending = ServerFeatures.votePending("comments", message.id());
+            buttonMessageUpvote.setEnabled(!votePending);
+            buttonMessageDownvote.setEnabled(!votePending);
+            textMessageScore.setAlpha(votePending ? .6f : 1f);
+
             int replyCount = AppData.getMessageReplyCount(message);
             textMessageReplyCount.setText(String.valueOf(replyCount));
             if (showReplyToggle) {

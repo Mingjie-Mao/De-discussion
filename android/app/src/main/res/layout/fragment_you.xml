@@ -330,5 +330,12 @@
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:visibility="gone" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonProfileMore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/feed_load_more"
+            android:textAllCaps="false"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import backend.BackendReportTarget;
+import backend.BackendForumGateway;
 import dao.PostDAO;
 import dao.UserDAO;
 import dao.model.Message;
@@ -64,6 +65,7 @@ public final class AppData {
     private static final Map<UUID, String> POST_IMAGE_URIS = new HashMap<>();
     private static final Map<UUID, MessageMeta> MESSAGE_META = new HashMap<>();
     private static final Map<UUID, String> MESSAGE_IMAGE_URIS = new HashMap<>();
+    private static final Map<UUID, String> MESSAGE_BODY_OVERRIDES = new HashMap<>();
     private static final Map<UUID, Integer> POST_TOP_RANKS = new HashMap<>();
     private static final Map<UUID, String> POST_CATEGORIES = new HashMap<>();
     private static final Map<UUID, Integer> BASE_BOOKMARKS = new HashMap<>();
@@ -72,10 +74,19 @@ public final class AppData {
     private static final Set<UUID> FOLLOWED_USERS = new HashSet<>();
     private static final Set<UUID> BOOKMARKED_POSTS = new HashSet<>();
     private static final Set<UUID> DELETED_POSTS = new HashSet<>();
+    private static final Set<UUID> REMOTE_POSTS = new HashSet<>();
+    private static final Set<UUID> REMOTE_COMMENTS = new HashSet<>();
+    private static final Set<UUID> REMOVED_REMOTE_COMMENTS = new HashSet<>();
+    private static final Map<UUID, String> REMOTE_AVATAR_URLS = new HashMap<>();
+    private static final Map<UUID, Integer> REMOTE_AVATAR_COLORS = new HashMap<>();
+    private static final Map<UUID, String> REMOTE_USER_NAMES = new HashMap<>();
+    private static final Set<String> REMOTE_SYNCED_FORUMS = new HashSet<>();
     private static final ArrayList<AppNotification> SEEDED_NOTIFICATIONS = new ArrayList<>();
 
     private static boolean populated;
     private static boolean adminMode;
+    private static boolean onlineMode;
+    private static String backendOrigin;
     private static String populatedLanguage;
     private static String selectedForumKey = FORUM_ANU;
 
@@ -113,6 +124,7 @@ public final class AppData {
         POST_IMAGE_URIS.clear();
         MESSAGE_META.clear();
         MESSAGE_IMAGE_URIS.clear();
+        MESSAGE_BODY_OVERRIDES.clear();
         POST_TOP_RANKS.clear();
         POST_CATEGORIES.clear();
         BASE_BOOKMARKS.clear();
@@ -121,6 +133,12 @@ public final class AppData {
         FOLLOWED_USERS.clear();
         BOOKMARKED_POSTS.clear();
         DELETED_POSTS.clear();
+        REMOTE_POSTS.clear();
+        REMOTE_COMMENTS.clear();
+        ThreadRefreshCache.clear();
+        REMOVED_REMOTE_COMMENTS.clear();
+        REMOTE_USER_NAMES.clear(); REMOTE_AVATAR_URLS.clear(); REMOTE_AVATAR_COLORS.clear();
+        REMOTE_SYNCED_FORUMS.clear();
         SEEDED_NOTIFICATIONS.clear();
 
         seedUsers();
@@ -143,9 +161,36 @@ public final class AppData {
         adminMode = isAdminMode;
     }
 
-    public static void toggleViewerMode() {
+    public static void setServerAdministrator(UUID id, String username) {
         ensurePopulated();
-        adminMode = !adminMode;
+        adminViewer = new User(id, User.Role.Admin, username, "");
+        if (UserDAO.getInstance().getByUUID(id) == null) UserDAO.getInstance().add(adminViewer);
+        adminMode = true;
+    }
+
+    public static void setServerMember(UUID id, String username) {
+        ensurePopulated();
+        memberViewer = new User(id, User.Role.Member, username, "");
+        if (UserDAO.getInstance().getByUUID(id) == null) UserDAO.getInstance().add(memberViewer);
+        adminMode = false;
+    }
+
+    public static void setOnlineMode(boolean enabled) { onlineMode = enabled; }
+
+    /** Cached server content belongs to one API origin. */
+    public static void bindBackendOrigin(String origin) {
+        if (backendOrigin != null && !backendOrigin.equals(origin)) {
+            DELETED_POSTS.addAll(REMOTE_POSTS);
+            REMOVED_REMOTE_COMMENTS.addAll(REMOTE_COMMENTS);
+            REMOTE_POSTS.clear();
+            REMOTE_SYNCED_FORUMS.clear();
+            REMOTE_USER_NAMES.clear(); REMOTE_AVATAR_URLS.clear(); REMOTE_AVATAR_COLORS.clear();
+        }
+        backendOrigin = origin;
+    }
+
+    public static void setPostCategory(Post post, String category) {
+        if (post != null && category != null) POST_CATEGORIES.put(post.id, category);
     }
 
     public static List<String> getForumKeys() {
@@ -247,6 +292,9 @@ public final class AppData {
                 continue;
             }
             if (!selectedForumKey.equals(getForumKey(post))) {
+                continue;
+            }
+            if ((onlineMode || REMOTE_SYNCED_FORUMS.contains(selectedForumKey)) && !REMOTE_POSTS.contains(post.id)) {
                 continue;
             }
             if (!adminMode && isRootHidden(post)) {
@@ -493,13 +541,43 @@ public final class AppData {
         return ellipsize(getPostBody(post), 220);
     }
 
+    /** What a reader sees: machine-translated in a Chinese interface, else as written. */
+    public static String getPostDisplayTitle(Context context, Post post) {
+        if (post == null || !REMOTE_POSTS.contains(post.id)) return getPostTitle(post);
+        return ContentTranslations.postTitle(context, post.id, getPostTitle(post), getPostBody(post));
+    }
+
+    public static String getPostDisplayBody(Context context, Post post) {
+        if (post == null || !REMOTE_POSTS.contains(post.id)) return getPostBody(post);
+        return ContentTranslations.postBody(context, post.id, getPostTitle(post), getPostBody(post));
+    }
+
+    public static String getPostDisplayBodyPreview(Context context, Post post) {
+        return ellipsize(getPostDisplayBody(context, post), 220);
+    }
+
+    public static boolean isPostTranslated(Context context, Post post) {
+        return post != null && REMOTE_POSTS.contains(post.id)
+                && ContentTranslations.isTranslated(context, post.id, getPostTitle(post), getPostBody(post));
+    }
+
+    public static String canonicalPostCategory(String category) {
+        if(category==null||category.isBlank())return "Study";
+        return switch(category.trim()) {
+            case "学习" -> "Study"; case "社交" -> "Social"; case "期末" -> "Finals";
+            case "生活" -> "Life"; case "就业" -> "Career"; default -> category.trim();
+        };
+    }
+
     public static String getPostCategory(Context context, Post post) {
         ensurePopulated();
-        String category = post == null ? null : POST_CATEGORIES.get(post.id);
-        if (category == null || category.trim().isEmpty()) {
-            return context.getString(R.string.category_study);
-        }
-        return category;
+        String category=canonicalPostCategory(post==null?null:POST_CATEGORIES.get(post.id));
+        boolean zh=context==null?contextLanguageIsChinese():context.getResources().getConfiguration().getLocales().get(0).getLanguage().startsWith("zh");
+        if(!zh)return category;
+        return switch(category) {
+            case "Study" -> "学习"; case "Social" -> "社交"; case "Finals" -> "期末";
+            case "Life" -> "生活"; case "Career" -> "就业"; default -> category;
+        };
     }
 
     public static String getPostTimestampLabel(Post post) {
@@ -560,7 +638,10 @@ public final class AppData {
         if (message == null) {
             return "";
         }
-        return message.message();
+        String body = MESSAGE_BODY_OVERRIDES.getOrDefault(message.id(), message.message());
+        return REMOTE_COMMENTS.contains(message.id())
+                ? ContentTranslations.comment(context, message.thread(), message.id(), body)
+                : body;
     }
 
     public static String getMessageAuthorDisplayName(Context context, Message message) {
@@ -758,7 +839,7 @@ public final class AppData {
 
     /**
      * Snapshot the post and the exact ancestor chain needed by the moderation
-     * backend. The local feed remains the source of truth for the demo UI; this
+     * backend. Server IDs remain the source of truth; this
      * immutable value is safe to consume on the gateway's worker thread.
      */
     public static BackendReportTarget backendReportTarget(Message message) {
@@ -803,6 +884,116 @@ public final class AppData {
         return createPost(topic, body, null);
     }
 
+    /** Replaces one forum's visible cache with the backend page. */
+    public static void synchronizeForum(
+            String forumKey, List<BackendForumGateway.PostSnapshot> snapshots, String baseUrl) {
+        ensurePopulated();
+        Set<UUID> received = new HashSet<>();
+        for (BackendForumGateway.PostSnapshot snapshot : snapshots) {
+            received.add(snapshot.id());
+            upsertRemotePost(snapshot, baseUrl);
+        }
+        for (UUID remoteId : new HashSet<>(REMOTE_POSTS)) {
+            Post existing = PostDAO.getInstance().get(new Post(remoteId));
+            if (existing != null && forumKey.equals(getForumKey(existing)) && !received.contains(remoteId)) {
+                DELETED_POSTS.add(remoteId);
+            }
+        }
+        REMOTE_SYNCED_FORUMS.add(forumKey);
+    }
+
+    public static Post upsertRemotePost(BackendForumGateway.PostSnapshot snapshot, String baseUrl) {
+        ensurePopulated();
+        User author = ensureRemoteUser(snapshot.authorId(), snapshot.authorName());
+        setRemoteAvatar(snapshot.authorId(), snapshot.avatarUrl(), snapshot.avatarColor(), baseUrl);
+        Post post = PostDAO.getInstance().get(new Post(snapshot.id()));
+        if (post == null) {
+            post = new Post(snapshot.id(), author.id(), snapshot.title());
+            UUID rootId = stableId("remote-root", snapshot.id().toString());
+            post.messages.insert(new Message(
+                    rootId, author.id(), snapshot.id(), snapshot.createdAt(), snapshot.body()));
+            PostDAO.getInstance().add(post);
+            POST_META.put(post.id, new PostMeta(snapshot.forumKey(), rootId));
+            MESSAGE_META.put(rootId, new MessageMeta(null, true));
+        }
+        POST_TITLE_OVERRIDES.put(post.id, snapshot.title());
+        POST_BODY_OVERRIDES.put(post.id, snapshot.body());
+        String image = absoluteMediaUrl(baseUrl, snapshot.mediaUrl());
+        if (image == null) POST_IMAGE_URIS.remove(post.id); else POST_IMAGE_URIS.put(post.id, image);
+        POST_CATEGORIES.put(post.id,snapshot.category()==null?"Study":snapshot.category());
+        if(snapshot.pinRank()==null) POST_TOP_RANKS.remove(post.id); else POST_TOP_RANKS.put(post.id,snapshot.pinRank());
+        DELETED_POSTS.remove(post.id);
+        REMOTE_POSTS.add(post.id);
+        REMOTE_SYNCED_FORUMS.add(snapshot.forumKey());
+        return post;
+    }
+
+    public static void replaceUserPosts(UUID authorId, List<BackendForumGateway.PostSnapshot> items, String origin) {
+        for (Post post : getPostsByUser(authorId)) if (REMOTE_POSTS.contains(post.id)) DELETED_POSTS.add(post.id);
+        for (BackendForumGateway.PostSnapshot item : items) upsertRemotePost(item, origin);
+    }
+
+    public static void synchronizeComments(
+            UUID postId, List<BackendForumGateway.CommentSnapshot> snapshots, String baseUrl) {
+        ensurePopulated();
+        Post post = PostDAO.getInstance().get(new Post(postId));
+        if (post == null) return;
+        UUID rootId = getRootMessageId(post);
+        for (BackendForumGateway.CommentSnapshot snapshot : snapshots) {
+            REMOTE_COMMENTS.add(snapshot.id());
+            REMOVED_REMOTE_COMMENTS.remove(snapshot.id());
+            ensureRemoteUser(snapshot.authorId(), snapshot.authorName());
+            setRemoteAvatar(snapshot.authorId(), snapshot.avatarUrl(), snapshot.avatarColor(), baseUrl);
+            Message existing = findMessage(post, snapshot.id());
+            if (existing == null) {
+                existing = new Message(snapshot.id(), snapshot.authorId(), post.id, snapshot.createdAt(), snapshot.body());
+                post.messages.insert(existing);
+                MESSAGE_META.put(existing.id(), new MessageMeta(
+                        snapshot.parentId() == null ? rootId : snapshot.parentId(), false));
+            }
+            MESSAGE_BODY_OVERRIDES.put(existing.id(), snapshot.body());
+            String image = absoluteMediaUrl(baseUrl, snapshot.mediaUrl());
+            if (image == null) MESSAGE_IMAGE_URIS.remove(existing.id()); else MESSAGE_IMAGE_URIS.put(existing.id(), image);
+        }
+    }
+
+    /** Refresh replaces the visible page; subsequent cursor pages append to it. */
+    public static void replaceRemoteComments(
+            UUID postId, List<BackendForumGateway.CommentSnapshot> snapshots, String baseUrl) {
+        Post post = PostDAO.getInstance().get(new Post(postId));
+        if (post != null) {
+            Iterator<Message> messages = post.messages.getAll();
+            while (messages.hasNext()) {
+                UUID id = messages.next().id();
+                if (REMOTE_COMMENTS.contains(id)) REMOVED_REMOTE_COMMENTS.add(id);
+            }
+        }
+        synchronizeComments(postId, snapshots, baseUrl);
+    }
+
+    public static Message upsertRemoteComment(
+            UUID postId, BackendForumGateway.CommentSnapshot snapshot, String baseUrl) {
+        synchronizeComments(postId, List.of(snapshot), baseUrl);
+        Post post = PostDAO.getInstance().get(new Post(postId));
+        return post == null ? null : findMessage(post, snapshot.id());
+    }
+
+    static User ensureRemoteUser(UUID userId, String displayName) {
+        if (displayName != null && !displayName.isBlank()) REMOTE_USER_NAMES.put(userId, displayName);
+        User existing = UserDAO.getInstance().getByUUID(userId);
+        if (existing != null) return existing;
+        String base = displayName == null || displayName.isBlank() ? "member" : displayName.trim();
+        User user = new User(userId, User.Role.Member, base + "_" + userId.toString().substring(0, 6), "");
+        UserDAO.getInstance().add(user);
+        return user;
+    }
+
+    private static String absoluteMediaUrl(String baseUrl, String mediaUrl) {
+        if (mediaUrl == null || mediaUrl.isBlank()) return null;
+        if (mediaUrl.startsWith("http://") || mediaUrl.startsWith("https://")) return mediaUrl;
+        return baseUrl + (mediaUrl.startsWith("/") ? mediaUrl : "/" + mediaUrl);
+    }
+
     public static Post createPost(String topic, String body, String imageUri) {
         return createPost(topic, body, imageUri, null);
     }
@@ -823,9 +1014,8 @@ public final class AppData {
                 1
         );
         String trimmedImageUri = imageUri == null ? "" : imageUri.trim();
-        if (!trimmedImageUri.isEmpty()) {
-            POST_IMAGE_URIS.put(post.id, trimmedImageUri);
-        }
+        if (trimmedImageUri.isEmpty()) POST_IMAGE_URIS.remove(post.id);
+        else POST_IMAGE_URIS.put(post.id, trimmedImageUri);
         String trimmedCategory = category == null ? "" : category.trim();
         POST_CATEGORIES.put(post.id, trimmedCategory.isEmpty() ? defaultCategories(null).get(0) : trimmedCategory);
         return post;
@@ -852,9 +1042,8 @@ public final class AppData {
             POST_CATEGORIES.put(post.id, trimmedCategory);
         }
         String trimmedImageUri = imageUri == null ? "" : imageUri.trim();
-        if (!trimmedImageUri.isEmpty()) {
-            POST_IMAGE_URIS.put(post.id, trimmedImageUri);
-        }
+        if (trimmedImageUri.isEmpty()) POST_IMAGE_URIS.remove(post.id);
+        else POST_IMAGE_URIS.put(post.id, trimmedImageUri);
         return true;
     }
 
@@ -909,6 +1098,12 @@ public final class AppData {
         return MESSAGE_IMAGE_URIS.get(message.id());
     }
 
+    public static void setMessageImageUri(Message message, String imageUri) {
+        if (message == null) return;
+        if (imageUri == null || imageUri.isBlank()) MESSAGE_IMAGE_URIS.remove(message.id());
+        else MESSAGE_IMAGE_URIS.put(message.id(), imageUri);
+    }
+
     public static String getPostImageUri(Post post) {
         if (post == null) {
             return null;
@@ -921,6 +1116,7 @@ public final class AppData {
     }
 
     public static boolean togglePostBookmark(Post post) {
+        if (onlineMode) return post != null && ServerFeatures.bookmark(post.id, !hasBookmarkedPost(post));
         ensurePopulated();
         if (post == null) {
             return false;
@@ -935,10 +1131,12 @@ public final class AppData {
 
     public static boolean hasBookmarkedPost(Post post) {
         ensurePopulated();
+        if (onlineMode) return post != null && ServerFeatures.state("posts", post.id).optBoolean("bookmarked");
         return post != null && BOOKMARKED_POSTS.contains(post.id);
     }
 
     public static ArrayList<Post> getBookmarkedPosts() {
+        if (onlineMode) { ArrayList<Post> result = new ArrayList<>(); for (UUID id : ServerFeatures.collection("BOOKMARKED")) { Post post = getPostById(id.toString()); if (post != null && !isDeletedPost(post)) result.add(post); } return result; }
         ensurePopulated();
         ArrayList<Post> posts = new ArrayList<>();
         Iterator<Post> iterator = PostDAO.getInstance().getAll();
@@ -953,6 +1151,7 @@ public final class AppData {
     }
 
     public static ArrayList<Post> getLikedPosts() {
+        if (onlineMode) { ArrayList<Post> result = new ArrayList<>(); for (UUID id : ServerFeatures.collection("LIKED")) { Post post = getPostById(id.toString()); if (post != null && !isDeletedPost(post)) result.add(post); } return result; }
         ensurePopulated();
         ArrayList<Post> posts = new ArrayList<>();
         Iterator<Post> iterator = PostDAO.getInstance().getAll();
@@ -967,6 +1166,7 @@ public final class AppData {
     }
 
     public static int getPostBookmarkCount(Post post) {
+        if (onlineMode) return post == null ? 0 : ServerFeatures.state("posts", post.id).optInt("bookmarks");
         ensurePopulated();
         if (post == null) {
             return 0;
@@ -1040,12 +1240,18 @@ public final class AppData {
         return String.valueOf(getPostVoteScore(post));
     }
 
+    public static int getPostCommentCount(Post post) {
+        int loaded=getVisibleMessageCount(post);
+        return post!=null && REMOTE_POSTS.contains(post.id)
+                ? ServerFeatures.state("posts",post.id).optInt("comments",loaded) : loaded;
+    }
+
     public static String getPostReplyCountLabel(Context context, Post post) {
-        return String.valueOf(getVisibleMessageCount(post));
+        return String.valueOf(getPostCommentCount(post));
     }
 
     public static String getPostCommentChipLabel(Context context, Post post) {
-        return context.getString(R.string.post_comments_chip, getVisibleMessageCount(post));
+        return context.getString(R.string.post_comments_chip, getPostCommentCount(post));
     }
 
     public static String getMessageLikeCountLabel(Context context, Message message) {
@@ -1117,6 +1323,7 @@ public final class AppData {
 
     public static String getUsername(UUID userId) {
         ensurePopulated();
+        if (REMOTE_USER_NAMES.containsKey(userId)) return REMOTE_USER_NAMES.get(userId);
         User user = UserDAO.getInstance().getByUUID(userId);
         if (user == null || user.username() == null) {
             return contextLanguageIsChinese() ? "unknown" : "unknown";
@@ -1140,7 +1347,7 @@ public final class AppData {
         Iterator<User> iterator = UserDAO.getInstance().getAll();
         while (iterator.hasNext()) {
             User user = iterator.next();
-            if (user != null && !user.id().equals(getCurrentUserId())) {
+            if (user != null && !user.id().equals(getCurrentUserId()) && (!onlineMode || REMOTE_USER_NAMES.containsKey(user.id()))) {
                 users.add(user);
             }
         }
@@ -1149,6 +1356,7 @@ public final class AppData {
     }
 
     public static ArrayList<User> getFollowedPeople() {
+        if (onlineMode) { ArrayList<User> result=new ArrayList<>(); for (User user:getPeople()) if (isFollowing(user.id())) result.add(user); return result; }
         ensurePopulated();
         ArrayList<User> users = new ArrayList<>();
         for (UUID userId : FOLLOWED_USERS) {
@@ -1162,11 +1370,13 @@ public final class AppData {
     }
 
     public static boolean isFollowing(UUID userId) {
+        if (onlineMode) return userId != null && ServerFeatures.state("users", userId).optBoolean("followed");
         ensurePopulated();
         return userId != null && FOLLOWED_USERS.contains(userId);
     }
 
     public static boolean toggleFollow(UUID userId) {
+        if (onlineMode) return userId != null && !userId.equals(getCurrentUserId()) && ServerFeatures.follow(userId, !isFollowing(userId));
         ensurePopulated();
         UUID currentUserId = getCurrentUserId();
         if (userId == null || userId.equals(currentUserId)) {
@@ -1181,6 +1391,7 @@ public final class AppData {
     }
 
     public static int getFollowerCount(UUID userId) {
+        if (onlineMode) return userId == null ? 0 : ServerFeatures.state("users", userId).optInt("followers");
         ensurePopulated();
         User user = getUser(userId);
         if (user == null) {
@@ -1195,6 +1406,7 @@ public final class AppData {
     }
 
     public static int getFollowingCount(UUID userId) {
+        if (onlineMode) return userId == null ? 0 : ServerFeatures.state("users", userId).optInt("following");
         ensurePopulated();
         UUID currentUserId = getCurrentUserId();
         if (currentUserId != null && currentUserId.equals(userId)) {
@@ -1208,6 +1420,8 @@ public final class AppData {
     }
 
     public static ArrayList<User> getFollowingPeople(UUID userId) {
+        if (onlineMode) return new ArrayList<>(); // Online lists are loaded with bounded server pages.
+
         ensurePopulated();
         UUID currentUserId = getCurrentUserId();
         if (currentUserId != null && currentUserId.equals(userId)) {
@@ -1217,6 +1431,8 @@ public final class AppData {
     }
 
     public static ArrayList<User> getFollowerPeople(UUID userId) {
+        if (onlineMode) return new ArrayList<>(); // Online lists are loaded with bounded server pages.
+
         ensurePopulated();
         return samplePeopleForUser(userId, Math.min(getFollowerCount(userId), 12), 7);
     }
@@ -1227,6 +1443,7 @@ public final class AppData {
     }
 
     public static int getReceivedLikeCount(UUID userId) {
+        if (onlineMode) return userId == null ? 0 : ServerFeatures.state("users", userId).optInt("likes");
         ensurePopulated();
         int total = 0;
         for (Post post : getPostsByUser(userId)) {
@@ -1236,6 +1453,7 @@ public final class AppData {
     }
 
     public static int getReceivedBookmarkCount(UUID userId) {
+        if (onlineMode) return userId == null ? 0 : ServerFeatures.state("users", userId).optInt("bookmarks");
         ensurePopulated();
         int total = 0;
         for (Post post : getPostsByUser(userId)) {
@@ -1265,7 +1483,7 @@ public final class AppData {
         Iterator<Post> iterator = PostDAO.getInstance().getAll();
         while (iterator.hasNext()) {
             Post post = iterator.next();
-            if (isDeletedPost(post)) {
+            if (isDeletedPost(post) || (onlineMode && !REMOTE_POSTS.contains(post.id))) {
                 continue;
             }
             if (post.poster != null && post.poster.equals(userId)) {
@@ -1285,7 +1503,7 @@ public final class AppData {
         Iterator<Post> postIterator = PostDAO.getInstance().getAll();
         while (postIterator.hasNext()) {
             Post post = postIterator.next();
-            if (isDeletedPost(post)) {
+            if (isDeletedPost(post) || (onlineMode && !REMOTE_POSTS.contains(post.id))) {
                 continue;
             }
             Iterator<Message> messageIterator = (adminMode
@@ -1293,7 +1511,7 @@ public final class AppData {
                     : post.getVisibleMessages(false)).getAll();
             while (messageIterator.hasNext()) {
                 Message message = messageIterator.next();
-                if (!isRootMessage(message) && userId.equals(message.poster())) {
+                if (!isRootMessage(message) && !REMOVED_REMOTE_COMMENTS.contains(message.id()) && userId.equals(message.poster())) {
                     messages.add(message);
                 }
             }
@@ -1345,7 +1563,17 @@ public final class AppData {
         return getAvatarLetter(null, userId);
     }
 
+    public static void setRemoteAvatar(UUID user, String url, int color, String origin) {
+        if (user == null) return;
+        if (url == null) REMOTE_AVATAR_URLS.remove(user); else REMOTE_AVATAR_URLS.put(user, absoluteMediaUrl(origin, url));
+        REMOTE_AVATAR_COLORS.put(user, color);
+    }
+    public static String getAvatarUrl(Context context, UUID user) {
+        if (user != null && user.equals(getCurrentUserId())) return UiPreferences.getAvatarImageUri(context);
+        return REMOTE_AVATAR_URLS.get(user);
+    }
     public static int getAvatarColor(UUID userId) {
+        if (REMOTE_AVATAR_COLORS.containsKey(userId)) return UiPreferences.getGoogleColor(REMOTE_AVATAR_COLORS.get(userId));
         String username = getUsername(userId);
         int index = Math.abs(username.hashCode()) % UiPreferences.getGoogleColorCount();
         return UiPreferences.getGoogleColor(index);
@@ -2646,7 +2874,8 @@ public final class AppData {
     private static ArrayList<Message> collectMessages(Iterator<Message> iterator) {
         ArrayList<Message> messages = new ArrayList<>();
         while (iterator.hasNext()) {
-            messages.add(iterator.next());
+            Message message = iterator.next();
+            if (!REMOVED_REMOTE_COMMENTS.contains(message.id())) messages.add(message);
         }
         return messages;
     }
@@ -2808,6 +3037,7 @@ public final class AppData {
     }
 
     private static boolean toggleVote(TargetType targetType, UUID targetId, int direction) {
+        if (onlineMode) { if (targetId == null || (direction != 1 && direction != -1)) return false; return ServerFeatures.vote(targetType == TargetType.POST ? "posts" : "comments", targetId, getCurrentUserVote(targetType, targetId) == direction ? 0 : direction); }
         ensurePopulated();
         User user = getCurrentUser();
         if (user == null || targetId == null || (direction != 1 && direction != -1)) {
@@ -2842,6 +3072,7 @@ public final class AppData {
     }
 
     private static int getVoteScore(TargetType targetType, UUID targetId) {
+        if (onlineMode) return targetId == null ? 0 : ServerFeatures.state(targetType == TargetType.POST ? "posts" : "comments", targetId).optInt("score");
         if (targetId == null) {
             return 0;
         }
@@ -2855,6 +3086,7 @@ public final class AppData {
     }
 
     private static int getCurrentUserVote(TargetType targetType, UUID targetId) {
+        if (onlineMode) return targetId == null ? 0 : ServerFeatures.state(targetType == TargetType.POST ? "posts" : "comments", targetId).optInt("vote");
         User user = getCurrentUser();
         if (user == null || targetId == null) {
             return 0;
@@ -2949,7 +3181,11 @@ public final class AppData {
         LIKE,
         BOOKMARK,
         COMMENT,
-        MENTION
+        MENTION,
+        FOLLOW,
+        MODERATION,
+        MODERATION_APPEALABLE,
+        APPEAL
     }
 
     public record AppNotification(
@@ -2960,7 +3196,23 @@ public final class AppData {
             UUID messageId,
             String title,
             String body,
-            long timestamp
+            long timestamp,
+            UUID remoteNotificationId,
+            String referenceType,
+            UUID referenceId,
+            boolean read
     ) {
+        public AppNotification(
+                NotificationType type,
+                UUID recipientId,
+                UUID actorId,
+                UUID postId,
+                UUID messageId,
+                String title,
+                String body,
+                long timestamp) {
+            this(type, recipientId, actorId, postId, messageId, title, body, timestamp,
+                    null, null, null, true);
+        }
     }
 }

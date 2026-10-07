@@ -40,6 +40,8 @@ import java.util.UUID;
 
 import backend.BackendConfig;
 import backend.BackendException;
+import backend.BackendForumGateway;
+import backend.BackendMedia;
 import backend.BackendModerationGateway;
 import backend.BackendReportTarget;
 import backend.BackendRuntime;
@@ -58,6 +60,7 @@ public class PostViewerActivity extends AppCompatActivity {
     private TextView textPostViewerMeta;
     private TextView textPostViewerTitle;
     private TextView textPostViewerBody;
+    private TextView textPostViewerTranslation;
     private TextView textPostViewerState;
     private TextView textPostViewerScore;
     private TextView textPostViewerCommentsCount;
@@ -71,11 +74,13 @@ public class PostViewerActivity extends AppCompatActivity {
     private LinearLayout buttonPostComments;
     private LinearLayout layoutPostViewerHeaderCard;
     private Button buttonBack;
+    private Button buttonLoadMoreComments;
     private ImageButton buttonPostMenu;
     private ImageButton buttonPostEdit;
     private ImageButton buttonPostDelete;
     private NestedScrollView postViewerScroll;
     private RecyclerView recyclerMessages;
+    private MessageAdapter messageAdapter;
     private Post post;
     private Message rootMessage;
     private UUID pendingScrollMessageId;
@@ -85,6 +90,9 @@ public class PostViewerActivity extends AppCompatActivity {
     private TextView activeReplySendButton;
     private final Set<UUID> expandedTopLevelComments = new HashSet<>();
     private final Set<UUID> pendingReports = new HashSet<>();
+    private boolean synchronizingThread;
+    private boolean loadingMoreComments;
+    private String nextCommentCursor;
 
     private final ActivityResultLauncher<String> pickReplyImageLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -112,6 +120,11 @@ public class PostViewerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         UiPreferences.applyAppearance(this);
         super.onCreate(savedInstanceState);
+        if (!UiPreferences.isLoggedIn(this)) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_post_viewer);
         View postViewerRoot = findViewById(R.id.postViewerRoot);
@@ -142,6 +155,10 @@ public class PostViewerActivity extends AppCompatActivity {
         textPostViewerMeta = findViewById(R.id.textPostViewerMeta);
         textPostViewerTitle = findViewById(R.id.textPostViewerTitle);
         textPostViewerBody = findViewById(R.id.textPostViewerBody);
+        textPostViewerTranslation = findViewById(R.id.textPostViewerTranslation);
+        textPostViewerTranslation.setOnClickListener(v -> {
+            if (post != null) ContentTranslations.toggleOriginal(post.id);
+        });
         textPostViewerState = findViewById(R.id.textPostViewerState);
         textPostViewerScore = findViewById(R.id.textPostViewerScore);
         textPostViewerCommentsCount = findViewById(R.id.textPostViewerCommentsCount);
@@ -155,14 +172,18 @@ public class PostViewerActivity extends AppCompatActivity {
         buttonPostBookmark = findViewById(R.id.buttonPostBookmark);
         imagePostBookmarkIcon = findViewById(R.id.imagePostBookmarkIcon);
         buttonBack = findViewById(R.id.buttonBack);
+        buttonLoadMoreComments = findViewById(R.id.buttonLoadMoreComments);
         buttonPostMenu = findViewById(R.id.buttonPostMenu);
         buttonPostEdit = findViewById(R.id.buttonPostEdit);
         buttonPostDelete = findViewById(R.id.buttonPostDelete);
         postViewerScroll = findViewById(R.id.postViewerScroll);
         recyclerMessages = findViewById(R.id.recyclerMessages);
+        buttonLoadMoreComments.setOnClickListener(v -> loadMoreComments());
 
         recyclerMessages.setLayoutManager(new LinearLayoutManager(this));
         recyclerMessages.setNestedScrollingEnabled(false);
+        if (recyclerMessages.getItemAnimator() instanceof androidx.recyclerview.widget.SimpleItemAnimator animator)
+            animator.setSupportsChangeAnimations(false);
         post = AppData.getPostById(getIntent().getStringExtra(EXTRA_POST_ID));
 
         buttonBack.setOnClickListener(v -> finish());
@@ -202,7 +223,11 @@ public class PostViewerActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         refreshUi();
+        synchronizeThread();
     }
+
+    @Override protected void onStart() { super.onStart(); ServerFeatures.init(this); ServerFeatures.observe(this, this::refreshUi); }
+    @Override protected void onStop() { ServerFeatures.remove(this); super.onStop(); }
 
     private void refreshUi() {
         if (post == null) {
@@ -211,10 +236,12 @@ public class PostViewerActivity extends AppCompatActivity {
             textPostViewerMeta.setText(R.string.post_not_found_body);
             textPostViewerTitle.setText("");
             textPostViewerBody.setText(R.string.post_not_found_summary);
+            textPostViewerTranslation.setVisibility(View.GONE);
             textPostViewerState.setVisibility(View.GONE);
             buttonPostEdit.setVisibility(View.GONE);
             buttonPostDelete.setVisibility(View.GONE);
             textCommentsEmpty.setVisibility(View.VISIBLE);
+            buttonLoadMoreComments.setVisibility(View.GONE);
             recyclerMessages.setAdapter(new MessageAdapter(new ArrayList<>()));
             return;
         }
@@ -231,13 +258,19 @@ public class PostViewerActivity extends AppCompatActivity {
         authorAvatarBg.setColor(AppData.getAvatarColor(this, post.poster));
         textPostViewerAuthorAvatar.setBackground(authorAvatarBg);
         textPostViewerAuthorAvatar.setText(AppData.getAvatarLetter(post.poster));
+        AvatarRenderer.display(textPostViewerAuthorAvatar,AppData.getAvatarUrl(this,post.poster),
+                AppData.getAvatarLetter(this,post.poster),AppData.getAvatarColor(this,post.poster));
         textPostViewerMeta.setText(getString(
                 R.string.message_author_line,
                 AppData.getDisplayName(this, post.poster),
                 AppData.getPostTimestampLabel(post)
         ));
-        textPostViewerTitle.setText(AppData.getPostTitle(post));
-        textPostViewerBody.setText(AppData.getPostBody(post));
+        textPostViewerTitle.setText(AppData.getPostDisplayTitle(this, post));
+        textPostViewerBody.setText(AppData.getPostDisplayBody(this, post));
+        boolean translated = AppData.isPostTranslated(this, post);
+        textPostViewerTranslation.setVisibility(translated ? View.VISIBLE : View.GONE);
+        textPostViewerTranslation.setText(ContentTranslations.isShowingOriginal(post.id)
+                ? R.string.translation_show_translated : R.string.translation_show_original);
         applyHeaderTheme();
         String postImageUri = AppData.getPostImageUri(post);
         if (postImageUri == null || postImageUri.isEmpty()) {
@@ -246,7 +279,7 @@ public class PostViewerActivity extends AppCompatActivity {
             imagePostViewerAttachment.setVisibility(View.GONE);
         } else {
             Uri attachmentUri = Uri.parse(postImageUri);
-            imagePostViewerAttachment.setImageURI(attachmentUri);
+            RemoteImageLoader.display(imagePostViewerAttachment, attachmentUri);
             imagePostViewerAttachment.setOnClickListener(v ->
                     ImageAttachmentViewer.show(this, attachmentUri, R.string.post_image_attachment));
             imagePostViewerAttachment.setVisibility(View.VISIBLE);
@@ -262,24 +295,32 @@ public class PostViewerActivity extends AppCompatActivity {
 
         ArrayList<Message> messages = AppData.getMessages(post, expandedTopLevelComments);
         textCommentsEmpty.setVisibility(messages.isEmpty() ? View.VISIBLE : View.GONE);
+        textCommentsEmpty.setText(synchronizingThread ? R.string.comments_loading_more : R.string.comments_empty);
 
-        MessageAdapter adapter = new MessageAdapter(messages, expandedTopLevelComments);
-        adapter.setOnMessageActionListener(this::handleMessageAction);
-        adapter.setOnMessageVoteListener((message, direction) -> {
-            AppData.toggleMessageVote(message, direction);
-            refreshUi();
-        });
-        adapter.setOnMessageReplyListener(this::showReplyDialog);
-        adapter.setOnReplyThreadToggleListener(topLevelCommentId -> {
-            if (expandedTopLevelComments.contains(topLevelCommentId)) {
-                expandedTopLevelComments.remove(topLevelCommentId);
-            } else {
-                expandedTopLevelComments.add(topLevelCommentId);
-            }
-            refreshUi();
-        });
-        adapter.setOnUserClickListener(this::openUserProfile);
-        recyclerMessages.setAdapter(adapter);
+        if (messageAdapter == null) {
+            MessageAdapter adapter = new MessageAdapter(messages, expandedTopLevelComments);
+            adapter.setOnMessageActionListener(this::handleMessageAction);
+            adapter.setOnMessageVoteListener((message, direction) -> {
+                AppData.toggleMessageVote(message, direction);
+                refreshUi();
+            });
+            adapter.setOnMessageReplyListener(this::showReplyDialog);
+            adapter.setOnReplyThreadToggleListener(topLevelCommentId -> {
+                if (expandedTopLevelComments.contains(topLevelCommentId)) {
+                    expandedTopLevelComments.remove(topLevelCommentId);
+                } else {
+                    expandedTopLevelComments.add(topLevelCommentId);
+                }
+                refreshUi();
+            });
+            adapter.setOnUserClickListener(this::openUserProfile);
+            messageAdapter = adapter;
+            recyclerMessages.setAdapter(adapter);
+        } else messageAdapter.updateMessages(messages);
+        buttonLoadMoreComments.setVisibility(nextCommentCursor == null ? View.GONE : View.VISIBLE);
+        buttonLoadMoreComments.setEnabled(!loadingMoreComments && !synchronizingThread);
+        buttonLoadMoreComments.setText(loadingMoreComments
+                ? R.string.comments_loading_more : R.string.comments_load_more);
         scrollToPendingReply(messages);
     }
 
@@ -310,14 +351,92 @@ public class PostViewerActivity extends AppCompatActivity {
                 .setMessage(R.string.dialog_delete_post_message)
                 .setNegativeButton(R.string.action_cancel, null)
                 .setPositiveButton(R.string.action_delete_post, (dialog, which) -> {
-                    if (AppData.deletePost(post)) {
-                        Toast.makeText(this, R.string.toast_post_deleted, Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else {
-                        Toast.makeText(this, R.string.toast_action_failed, Toast.LENGTH_SHORT).show();
+                    BackendRuntime backend = BackendRuntime.from(this);
+                    if (backend.config().isEnabled()) {
+                        backend.forum().deletePost(AppData.getCurrentUserId(), post.id,
+                                new BackendModerationGateway.Callback<>() {
+                                    @Override public void onSuccess(Void value) { completePostDeletion(); }
+                                    @Override public void onError(BackendException error) {
+                                        if (isFinishing() || isDestroyed() || UiPreferences.handleExpiredSession(PostViewerActivity.this, error)) return;
+                                        Toast.makeText(PostViewerActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                        return;
                     }
+                    completePostDeletion();
                 })
                 .show();
+    }
+
+    private void completePostDeletion() {
+        if (AppData.deletePost(post)) {
+            Toast.makeText(this, R.string.toast_post_deleted, Toast.LENGTH_SHORT).show();
+            finish();
+        } else Toast.makeText(this, R.string.toast_action_failed, Toast.LENGTH_SHORT).show();
+    }
+
+    private String threadScope() {
+        return AppData.getCurrentUserId() + "|" + BackendRuntime.from(this).config().baseUrl();
+    }
+
+    private void synchronizeThread() {
+        if (post == null || synchronizingThread) return;
+        BackendRuntime backend = BackendRuntime.from(this);
+        if (!backend.config().isEnabled()) return;
+        String requestScope = threadScope();
+        ThreadRefreshCache.Entry cached = ThreadRefreshCache.fresh(requestScope, post.id, android.os.SystemClock.elapsedRealtime());
+        if (cached != null) {
+            nextCommentCursor = cached.nextCursor(); refreshUi(); return;
+        }
+        synchronizingThread = true;
+        refreshUi();
+        buttonLoadMoreComments.setEnabled(false);
+        backend.forum().fetchThreadPage(post.id, null,
+                new BackendModerationGateway.Callback<BackendForumGateway.CommentPage>() {
+                    @Override public void onSuccess(BackendForumGateway.CommentPage value) {
+                        synchronizingThread = false;
+                        if (isFinishing() || isDestroyed() || !requestScope.equals(threadScope())) return;
+                        nextCommentCursor = value.hasMore() ? value.nextCursor() : null;
+                        ThreadRefreshCache.refreshed(requestScope, post.id, nextCommentCursor, android.os.SystemClock.elapsedRealtime());
+                        AppData.replaceRemoteComments(post.id, value.items(), backend.config().baseUrl());
+                        refreshUi();
+                    }
+                    @Override public void onError(BackendException error) {
+                        if (isFinishing() || isDestroyed() || UiPreferences.handleExpiredSession(PostViewerActivity.this, error)) return;
+                        synchronizingThread = false;
+                        refreshUi();
+                        buttonLoadMoreComments.setEnabled(true);
+                        Toast.makeText(PostViewerActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    private void loadMoreComments() {
+        if (post == null || loadingMoreComments || synchronizingThread || nextCommentCursor == null) return;
+        BackendRuntime backend = BackendRuntime.from(this);
+        if (!backend.config().isEnabled()) return;
+        String requestScope = threadScope();
+        loadingMoreComments = true;
+        buttonLoadMoreComments.setEnabled(false);
+        buttonLoadMoreComments.setText(R.string.comments_loading_more);
+        backend.forum().fetchThreadPage(post.id, nextCommentCursor,
+                new BackendModerationGateway.Callback<BackendForumGateway.CommentPage>() {
+                    @Override public void onSuccess(BackendForumGateway.CommentPage value) {
+                        loadingMoreComments = false;
+                        if (isFinishing() || isDestroyed() || !requestScope.equals(threadScope())) return;
+                        nextCommentCursor = value.hasMore() ? value.nextCursor() : null;
+                        ThreadRefreshCache.paged(requestScope, post.id, nextCommentCursor);
+                        AppData.synchronizeComments(post.id, value.items(), backend.config().baseUrl());
+                        refreshUi();
+                    }
+                    @Override public void onError(BackendException error) {
+                        if (isFinishing() || isDestroyed() || UiPreferences.handleExpiredSession(PostViewerActivity.this, error)) return;
+                        loadingMoreComments = false;
+                        buttonLoadMoreComments.setEnabled(true);
+                        buttonLoadMoreComments.setText(R.string.comments_load_more);
+                        Toast.makeText(PostViewerActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private void updatePostVoteColors() {
@@ -328,6 +447,11 @@ public class PostViewerActivity extends AppCompatActivity {
         int reportColor = ContextCompat.getColor(this, R.color.danger_ink);
 
         int voteDirection = AppData.getCurrentUserPostVote(post);
+        boolean votePending = ServerFeatures.votePending("posts", post.id);
+        buttonPostUpvote.setEnabled(!votePending);
+        buttonPostDownvote.setEnabled(!votePending);
+        textPostViewerScore.setAlpha(votePending ? .6f : 1f);
+
         buttonPostUpvote.setImageResource(voteDirection > 0
                 ? R.drawable.ic_vote_up_filled_24
                 : R.drawable.ic_vote_up_outline_24);
@@ -372,6 +496,7 @@ public class PostViewerActivity extends AppCompatActivity {
         textPostViewerMeta.setTextColor(onSecondary);
         textPostViewerTitle.setTextColor(onColor);
         textPostViewerBody.setTextColor(onSecondary);
+        textPostViewerTranslation.setTextColor(onSecondary);
         textPostViewerState.setTextColor(onSecondary);
     }
 
@@ -460,6 +585,7 @@ public class PostViewerActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(BackendException error) {
+                        if (isFinishing() || isDestroyed() || UiPreferences.handleExpiredSession(PostViewerActivity.this, error)) return;
                         pendingReports.remove(message.id());
                         Toast.makeText(
                                 PostViewerActivity.this,
@@ -626,22 +752,7 @@ public class PostViewerActivity extends AppCompatActivity {
         return button;
     }
 
-    private void showMentionDialog(EditText input) {
-        ArrayList<User> followed = AppData.getFollowedPeople();
-        if (followed.isEmpty()) {
-            Toast.makeText(this, R.string.toast_follow_someone_first, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String[] labels = new String[followed.size()];
-        for (int i = 0; i < followed.size(); i++) {
-            labels[i] = "@" + followed.get(i).username();
-        }
-        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_App_MaterialAlertDialog)
-                .setTitle(R.string.action_mention_friend)
-                .setItems(labels, (dialog, which) -> insertMention(input, labels[which]))
-                .show();
-    }
+    private void showMentionDialog(EditText input) { ServerFeatures.pickFollowing(this, mention -> insertMention(input, mention)); }
 
     private void insertMention(EditText input, String mention) {
         int start = Math.max(input.getSelectionStart(), 0);
@@ -712,6 +823,11 @@ public class PostViewerActivity extends AppCompatActivity {
             return;
         }
 
+        BackendRuntime backend = BackendRuntime.from(this);
+        if (backend.config().isEnabled()) {
+            publishReplyOnline(backend, input, parent, dialog, content, imageUri);
+            return;
+        }
         Message reply = AppData.createReply(parent, content, imageUri);
         if (reply == null) {
             Toast.makeText(this, getString(R.string.toast_action_failed), Toast.LENGTH_SHORT).show();
@@ -722,6 +838,40 @@ public class PostViewerActivity extends AppCompatActivity {
         Toast.makeText(this, getString(R.string.toast_reply_created), Toast.LENGTH_SHORT).show();
         dialog.dismiss();
         refreshUi();
+    }
+
+    private void publishReplyOnline(
+            BackendRuntime backend, EditText input, Message parent,
+            androidx.appcompat.app.AlertDialog dialog, String content, String imageUri) {
+        BackendForumGateway.MediaUpload upload;
+        try { upload = BackendMedia.read(this, selectedReplyImageUri); }
+        catch (IOException error) {
+            Toast.makeText(this, R.string.toast_action_failed, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        activeReplySendButton.setEnabled(false);
+        UUID parentId = rootMessage != null && parent != null && !rootMessage.id().equals(parent.id())
+                ? parent.id() : null;
+        String serverBody = content.isEmpty() && upload != null ? "[Image attachment]" : content;
+        backend.forum().createComment(
+                AppData.getCurrentUserId(), post.id, parentId, serverBody, upload,
+                new BackendModerationGateway.Callback<>() {
+                    @Override public void onSuccess(BackendForumGateway.CommentSnapshot snapshot) {
+                        Message reply = AppData.upsertRemoteComment(post.id, snapshot, backend.config().baseUrl());
+                        if (reply != null && imageUri != null) {
+                            // Preserve the local copy immediately; a later sync replaces it with the canonical URL.
+                            AppData.setMessageImageUri(reply, imageUri);
+                        }
+                        pendingScrollMessageId = reply == null ? null : reply.id();
+                        Toast.makeText(PostViewerActivity.this, R.string.toast_reply_created, Toast.LENGTH_SHORT).show();
+                        dialog.dismiss(); refreshUi();
+                    }
+                    @Override public void onError(BackendException error) {
+                        if (isFinishing() || isDestroyed() || UiPreferences.handleExpiredSession(PostViewerActivity.this, error)) return;
+                        activeReplySendButton.setEnabled(true);
+                        Toast.makeText(PostViewerActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private void scrollToPendingReply(ArrayList<Message> messages) {
@@ -743,12 +893,12 @@ public class PostViewerActivity extends AppCompatActivity {
             recyclerMessages.post(() -> {
                 RecyclerView.ViewHolder holder = recyclerMessages.findViewHolderForAdapterPosition(position);
                 if (holder == null) {
-                    postViewerScroll.smoothScrollTo(0, recyclerMessages.getBottom());
+                    postViewerScroll.scrollTo(0, recyclerMessages.getBottom());
                     return;
                 }
 
                 int targetY = recyclerMessages.getTop() + holder.itemView.getTop();
-                postViewerScroll.smoothScrollTo(0, Math.max(0, targetY - dp(12)));
+                postViewerScroll.scrollTo(0, Math.max(0, targetY - dp(12)));
             });
         }
     }

@@ -1,90 +1,80 @@
 # De
 
-[![English](https://img.shields.io/badge/English-4285F4?style=for-the-badge)](readme.md)
-[![中文](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-555555?style=for-the-badge)](readme.zh-CN.md)
+**De** 是一个校园讨论社区 Android 应用 Demo，由 **404 Sleep Not Found** 团队开发。
 
-De is a demo Android app for campus discussion communities, built by the 404 Sleep Not Found team.
+它把校园论坛、内容审核和学校热度代币玩法结合在一起。用户可以在不同学校频道浏览帖子、发布图片和参与多层评论；管理员可以处理举报、申诉并查看审计记录；成员还可以参与 Heat Market 和排行榜。
 
-It combines a campus forum, a moderation workflow, and a school heat-token game. Users can browse posts across different school channels, publish content with images, and read threaded comments; admins can handle reported content; and everyone can take part in the Heat Market and leaderboards driven by community activity.
+App 已接入 [De-Moderation 后端](https://github.com/Mingjie-Mao/De-moderation-backend)。账号、帖子、评论、图片、社交互动和市场数据均保存到真实服务器与 PostgreSQL，用户操作会写入数据库。规则引擎与 LLM 提供审核建议，最终处置由管理员决定。
 
-Online reports are connected to the standalone [De-Moderation](https://github.com/Mingjie-Mao/De-Moderation) Spring Boot service. When its model engine is configured, a report filed in this app is analysed by the LLM and appears in the in-app administrator queue with the engine recommendation, confidence and rationale.
+## 项目亮点
 
-## Highlights
+- 多学校频道切换，不同频道有不同视觉风格
+- 支持发帖、图片上传、多层评论与回复展开 / 折叠
+- 点赞、关注、收藏和通知接入真实后端
+- 成员与管理员使用真实账号登录，退出 App 进程后可恢复会话
+- 管理员在 App 或网页中处理举报、模型建议、申诉和审计
+- 支持中英文界面，中文模式下可查看内容译文及举报原文
+- 学校热度由帖子、回复和点赞共同驱动，Heat Market 支持虚拟交易与 K 线展示
+- 排行榜展示用户的市场表现
+- 每日 UTC 日期首次访问时，现金低于 1000 才补足，持仓和历史记录保留
 
-- Switch between multiple school channels, each with its own visual style
-- Post creation, image upload, and comment interaction
-- Expandable and collapsible comment threads for cleaner mobile reading
-- Both member mode and admin mode
-- Admins can review and act on reported content from a report queue
-- School token system, with heat driven by posts, replies, and likes
-- Leaderboards showing how different users perform in the market
-- Daily balance reset, so the game stays playable over time
+## 界面预览
 
-## Screenshots
-
-| Feed | Comments |
+| 首页信息流 | 评论区 |
 | --- | --- |
-| ![Feed](picture/feed.png) | ![Comments](picture/comments.png) |
+| ![首页信息流](picture/feed.png) | ![评论区](picture/comments.png) |
 
-| Heat Market | Leaderboard |
+| Heat Market | 排行榜 |
 | --- | --- |
-| ![Heat Market](picture/market.png) | ![Leaderboard](picture/leaderboard.png) |
+| ![Heat Market](picture/market.png) | ![排行榜](picture/leaderboard.png) |
 
-## Demo Walkthrough
+截图为原始 Demo 界面参考，当前在线内容、行情和余额会随实际操作变化。热度代币是虚拟游戏积分。
 
-1. Sign in with the demo account
-2. Choose Member or Admin
-3. Browse posts across the different school channels
-4. Report a comment in member mode
-5. Switch to admin mode and handle the report from the review queue
-6. Trade school tokens in the Heat Market and check the leaderboard
+## Demo 体验流程
 
-## Demo Account
+1. 选择 **Member**，使用成员账号登录，也可以创建自己的账号。
+2. 浏览学校频道，发布帖子、图片和评论，体验点赞、关注与收藏。
+3. 举报帖子或评论，在设置中退出后选择 **Admin**，登录管理员账号。
+4. 进入审核工作台，查看案件与模型建议，处理举报和申诉。
+5. 在 **Heat Market** 中交易学校代币，查看 K 线、持仓和排行榜。
 
-Username: 1234
+## Demo 账号
 
-Password: 1234
+| 身份 | 用户名 | 密码 |
+| --- | --- | --- |
+| 成员 Member | `1234` | `1234` |
+| 管理员 Admin | `12345` | `12345` |
 
-## Tech Stack
+两个账号都经过服务器认证；选择 Admin 按钮后仍需登录真实管理员账号。
 
-- Java
-- Android SDK
-- Gradle
-- Custom moderation and data structure modules
+## 技术栈
 
-## Project Structure
+- 客户端：Java、Android SDK、Gradle、RecyclerView
+- 接入与会话：REST API、JWT、Refresh Token、Android Keystore
+- 后端：Java 21、Spring Boot、PostgreSQL、Spring AI / Gemini、S3 兼容图片存储
+- 保留原课程项目中的自定义数据结构与审核模块
 
-- `android/` — Android app code and resource files
-- `android/app/src/main/java/com/example/myapplication/` — screens, components, and core business logic
-- `android/app/src/main/java/moderation/` — reporting, hiding, and review queue logic
-- `android/app/src/main/java/backend/` — De-Moderation HTTP integration, account mapping and lazy content mirroring
-- `app/src/` — the original coursework-side Java module kept in the repo
-- `picture/` — project screenshots used in this README
+## 项目结构
 
-## Getting Started
+| 目录 | 说明 |
+| --- | --- |
+| `android/` | Android 应用代码与资源 |
+| `android/app/src/main/java/com/example/myapplication/` | 页面、组件与主要业务逻辑 |
+| `android/app/src/main/java/backend/` | 后端 API、账号会话、媒体上传与数据同步 |
+| `android/app/src/main/java/moderation/` | 原课程项目保留的审核策略与迭代器 |
+| `app/src/` | 原始课程侧 Java 模块 |
+| `picture/` | README 界面截图 |
+| `scripts/` | 数据导入、验收与发布脚本 |
 
-Open `android/` in Android Studio.
+## 运行方式
 
-Wait for the Gradle sync to finish.
+1. 用 Android Studio 打开 `android/`。
+2. 等待 Gradle 同步完成。
+3. 在模拟器或真机上运行应用，默认连接已部署的演示后端。
 
-Run the app on an emulator or a physical device.
-
-You can also build from the command line:
+也可以使用命令行构建：
 
 ```bash
 cd android
 ./gradlew assembleDebug
 ```
-
-## Online LLM moderation
-
-The two repositories remain separate applications and communicate through the De-Moderation REST API. A reported local post/comment chain is mirrored lazily to the backend under stable per-install accounts, then the report is submitted to its durable moderation queue. Content is not claimed to be reported if that request fails.
-
-1. Start De-Moderation and its PostgreSQL database, including its `ADMIN_USERNAME` / `ADMIN_PASSWORD` settings.
-2. For LLM review, configure the backend's `AI_CHAT_MODEL`, `GEMINI_API_KEY`, `GEMINI_MODELS` and `MODERATION_ENGINE`. Without those, the same connection works with the deterministic rule engine.
-3. In the Android app, open **Settings → Moderation backend**. An emulator uses `http://10.0.2.2:8080`; a physical device needs a reachable HTTPS deployment (or the development machine's LAN address in a debug build).
-4. Enter the backend administrator credentials to use the online review queue. The password is memory-only and must be re-entered after the app process restarts.
-
-Admin mode has two screens for this. **Moderation Queue** holds cases an engine has analysed and nobody has ruled on yet, each with the recommendation, confidence and rationale. **Reviewed Records** holds the cases already decided, and the decision can still be changed there — the backend restores hidden content or reinstates a banned author as needed, and appends the correction to the audit trail instead of overwriting the original.
-
-Online mode is enabled by default. The Settings status says explicitly whether an LLM is active, rules are active, or the service is unreachable. Disable online mode there to use the original device-only moderation demo. Release builds do not allow cleartext HTTP; the HTTP exception exists only in the debug manifest.

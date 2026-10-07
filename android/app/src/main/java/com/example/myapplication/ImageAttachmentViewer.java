@@ -46,7 +46,7 @@ final class ImageAttachmentViewer {
         ImageView preview = new ImageView(context);
         preview.setAdjustViewBounds(true);
         preview.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        preview.setImageURI(imageUri);
+        RemoteImageLoader.display(preview, imageUri);
         int padding = dp(context, 12);
         preview.setBackgroundColor(Color.TRANSPARENT);
         preview.setPadding(0, padding, 0, padding);
@@ -125,7 +125,7 @@ final class ImageAttachmentViewer {
                 throw new IOException("Could not create image destination.");
             }
 
-            try (InputStream input = context.getContentResolver().openInputStream(sourceUri);
+            try (InputStream input = openSource(context, sourceUri);
                  OutputStream output = context.getContentResolver().openOutputStream(destinationUri)) {
                 if (input == null || output == null) {
                     throw new IOException("Could not open image streams.");
@@ -149,5 +149,13 @@ final class ImageAttachmentViewer {
             }
             Toast.makeText(context, R.string.toast_image_save_failed, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private static InputStream openSource(Context context, Uri uri) throws IOException {
+        String scheme = uri.getScheme();
+        if ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme)) {
+            return new java.net.URL(uri.toString()).openStream();
+        }
+        return context.getContentResolver().openInputStream(uri);
     }
 }

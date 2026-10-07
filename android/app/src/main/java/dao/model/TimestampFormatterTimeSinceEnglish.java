@@ -13,9 +13,10 @@ public class TimestampFormatterTimeSinceEnglish implements TimestampFormatter {
 	public String format(long timestamp) {
 		boolean zh = Locale.getDefault().getLanguage().equals("zh");
 		long current = System.currentTimeMillis();
-		if (timestamp > current) return zh ? "未来" : "in the future";
+		// Small device/server clock differences should not label new comments as future.
+        if (timestamp > current + 30000) return zh ? "未来" : "in the future";
 
-		long secondsAgo = (current - timestamp)/1000;
+		long secondsAgo = Math.max(0, (current - timestamp)/1000);
 		if (secondsAgo < 5) return zh ? "刚刚" : "right now";
 		else if (secondsAgo < 60) return zh
 				? String.format(Locale.ROOT, "%d 秒前", secondsAgo)

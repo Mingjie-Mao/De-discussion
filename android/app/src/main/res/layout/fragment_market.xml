@@ -11,6 +11,19 @@
         android:orientation="vertical"
         android:paddingBottom="28dp">
 
+        <TextView
+            android:id="@+id/textMarketStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/ink_secondary"
+            android:visibility="gone" />
+        <Button
+            android:id="@+id/buttonMarketRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/feed_retry"
+            android:visibility="gone" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -234,12 +247,24 @@
                     android:textColor="@color/white" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/layoutChartPeriod"
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:orientation="horizontal" />
+                android:scrollbars="none">
+                <LinearLayout
+                    android:id="@+id/layoutChartPeriod"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/textMarketChartNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="?attr/textAppearanceBodySmall" />
 
             <com.example.myapplication.MarketCandleChartView
                 android:id="@+id/viewMarketChart"

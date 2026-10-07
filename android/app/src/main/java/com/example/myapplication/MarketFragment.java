@@ -24,10 +24,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public class MarketFragment extends Fragment implements RefreshablePage {
     private static final String STATE_SELECTED_MARKET = "selected_market";
@@ -35,6 +33,8 @@ public class MarketFragment extends Fragment implements RefreshablePage {
     private static final String STATE_LAST_TRADE_STATUS = "last_trade_status";
 
     private TextView textMarketBalanceValue;
+    private TextView syncStatus;
+    private Button syncRetry;
     private TextView textMarketHeldValue;
     private TextView textMarketOpenPnlValue;
     private TextView textMarketResetRule;
@@ -52,7 +52,8 @@ public class MarketFragment extends Fragment implements RefreshablePage {
     private LinearLayout layoutMarketTriggers;
     private LinearLayout layoutChartPeriod;
     private LinearLayout layoutTradeMode;
-    private String selectedPeriod = "day";
+    private String selectedPeriod = "history";
+    private TextView textMarketChartNote;
     private String tradeMode = "long"; // "long" or "short"
     private TextView textTradePrice;
     private EditText inputTradeAmount;
@@ -90,6 +91,9 @@ public class MarketFragment extends Fragment implements RefreshablePage {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         textMarketBalanceValue = view.findViewById(R.id.textMarketBalanceValue);
+        syncStatus=view.findViewById(R.id.textMarketStatus);
+        syncRetry=view.findViewById(R.id.buttonMarketRetry);
+        syncRetry.setOnClickListener(v -> ServerFeatures.refreshMarket(requireContext(),true));
         textMarketHeldValue = view.findViewById(R.id.textMarketHeldValue);
         textMarketOpenPnlValue = view.findViewById(R.id.textMarketOpenPnlValue);
         textMarketResetRule = view.findViewById(R.id.textMarketResetRule);
@@ -106,6 +110,7 @@ public class MarketFragment extends Fragment implements RefreshablePage {
         viewMarketChart = view.findViewById(R.id.viewMarketChart);
         layoutMarketTriggers = view.findViewById(R.id.layoutMarketTriggers);
         layoutChartPeriod = view.findViewById(R.id.layoutChartPeriod);
+        textMarketChartNote = view.findViewById(R.id.textMarketChartNote);
         layoutTradeMode = view.findViewById(R.id.layoutTradeMode);
         textTradePrice = view.findViewById(R.id.textTradePrice);
         inputTradeAmount = view.findViewById(R.id.inputTradeAmount);
@@ -119,6 +124,10 @@ public class MarketFragment extends Fragment implements RefreshablePage {
 
         if (savedInstanceState != null) {
             selectedMarketKey = savedInstanceState.getString(STATE_SELECTED_MARKET);
+            selectedPeriod = savedInstanceState.getString("chartPeriod", "history");
+            pendingTradePayload = savedInstanceState.getString("pendingTradePayload");
+            String restoredTradeId = savedInstanceState.getString("pendingTradeId");
+            if (restoredTradeId != null) pendingTradeId = java.util.UUID.fromString(restoredTradeId);
             lastTradeMessage = savedInstanceState.getString(STATE_LAST_TRADE_MESSAGE);
             lastTradeStatus = savedInstanceState.getInt(STATE_LAST_TRADE_STATUS, -1);
         }
@@ -142,6 +151,7 @@ public class MarketFragment extends Fragment implements RefreshablePage {
         });
         buttonTradeBuy.setOnClickListener(v -> handleBuy());
         buttonTradeSell.setOnClickListener(v -> handleSell());
+        android.widget.Button history = new android.widget.Button(requireContext()); history.setText(R.string.server_trade_history); history.setOnClickListener(v -> ServerFeatures.history(requireContext())); ((android.view.ViewGroup)buttonTradeSell.getParent().getParent()).addView(history);
 
         refreshContent();
     }
@@ -149,6 +159,7 @@ public class MarketFragment extends Fragment implements RefreshablePage {
     @Override
     public void onResume() {
         super.onResume();
+        ServerFeatures.init(requireContext()); ServerFeatures.observe(this,this::refreshContent);
         MarketPortfolioStore.advanceMarketTick(requireContext());
         refreshContent();
         startTicker();
@@ -156,6 +167,7 @@ public class MarketFragment extends Fragment implements RefreshablePage {
 
     @Override
     public void onPause() {
+        ServerFeatures.remove(this);
         super.onPause();
         stopTicker();
     }
@@ -164,13 +176,16 @@ public class MarketFragment extends Fragment implements RefreshablePage {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(STATE_SELECTED_MARKET, selectedMarketKey);
+        outState.putString("chartPeriod", selectedPeriod);
+        outState.putString("pendingTradePayload", pendingTradePayload);
+        outState.putString("pendingTradeId", pendingTradeId == null ? null : pendingTradeId.toString());
         outState.putString(STATE_LAST_TRADE_MESSAGE, lastTradeMessage);
         outState.putInt(STATE_LAST_TRADE_STATUS, lastTradeStatus);
     }
 
     @Override
     public void refreshContent() {
-        if (!isAdded() || getView() == null) {
+        if (!isResumed() || !isAdded() || getView() == null) {
             return;
         }
 
@@ -179,9 +194,9 @@ public class MarketFragment extends Fragment implements RefreshablePage {
         }
 
         MarketPortfolioStore.PortfolioSnapshot snapshot = MarketPortfolioStore.getPortfolio(requireContext());
-        textMarketBalanceValue.setText(formatTokens(snapshot.getCashBalance()));
-        textMarketHeldValue.setText(formatTokens(snapshot.getMarketValue()));
-        textMarketOpenPnlValue.setText(formatSignedTokens(snapshot.getOpenPnl()));
+        textMarketBalanceValue.setText(ServerFeatures.marketReady() ? formatTokens(snapshot.getCashBalance()) : "—");
+        textMarketHeldValue.setText(ServerFeatures.marketReady() ? formatTokens(snapshot.getMarketValue()) : "—");
+        textMarketOpenPnlValue.setText(ServerFeatures.marketReady()?formatSignedTokens(snapshot.getOpenPnl()):"—");
         textMarketOpenPnlValue.setTextColor(resolvePnlColor(snapshot.getOpenPnl()));
         textMarketResetRule.setText(getString(
                 R.string.market_reset_rule,
@@ -189,6 +204,12 @@ public class MarketFragment extends Fragment implements RefreshablePage {
                 MarketPortfolioStore.DAILY_FLOOR_TOKENS
         ));
 
+        boolean ready=ServerFeatures.marketReady();
+        String error=ServerFeatures.marketError();
+        syncStatus.setVisibility(error!=null||!ready?View.VISIBLE:View.GONE);
+        syncStatus.setText(error!=null?R.string.feed_sync_failed:R.string.feed_sync_loading);
+        syncRetry.setVisibility(error!=null?View.VISIBLE:View.GONE);
+        layoutMarketHero.setVisibility(ready?View.VISIBLE:View.GONE);
         renderSelectorRow();
         renderSelectedMarket();
         renderPositions(snapshot);
@@ -230,7 +251,7 @@ public class MarketFragment extends Fragment implements RefreshablePage {
             label.setText(AppData.getForumLabel(requireContext(), forumKey));
             label.setTextColor(primaryColor);
             label.setTypeface(selected ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-            price.setText(getString(R.string.market_selector_price, getLivePrice(market)));
+            price.setText(ServerFeatures.marketReady()?getString(R.string.market_selector_price, getLivePrice(market)):"—");
             price.setTextColor(secondaryColor);
             root.setOnClickListener(v -> {
                 selectedMarketKey = forumKey;
@@ -269,10 +290,10 @@ public class MarketFragment extends Fragment implements RefreshablePage {
         textMarketForumName.setText(AppData.getForumLabel(requireContext(), selectedMarketKey));
         textMarketForumName.setTextColor(onColor);
         int livePrice = getLivePrice(market);
-        int heatIndex = market.getHeatIndex();
+        int heatIndex = livePrice;
         textMarketIndex.setText(getString(R.string.market_index_format, heatIndex));
         textMarketIndex.setTextColor(onColor);
-        textMarketChange.setText(getString(R.string.market_change_today, formatPercent(getLiveDayChangePercent(market, livePrice))));
+        textMarketChange.setText(getString(R.string.market_change_24h, formatPercent(getLiveDayChangePercent(market, livePrice))));
         textMarketChange.setTextColor(onColor);
         textMarketChange.setBackground(makePill(Color.argb(40, 255, 255, 255), 999));
         textMarketFormulaLabel.setTextColor(onSecondary);
@@ -286,8 +307,7 @@ public class MarketFragment extends Fragment implements RefreshablePage {
         textMarketTriggerLabel.setTextColor(onSecondary);
 
         setupPeriodChips(onColor, onSecondary);
-        List<CampusMarketRepository.MarketCandle> periodCandles = buildCandlesForPeriod(market, livePrice);
-        viewMarketChart.setData(periodCandles, buildLabelsForPeriod(periodCandles.size()));
+        renderChart(market);
         renderTriggers(market.getTriggers(requireContext()), onColor);
 
         setupTradeModeChips();
@@ -322,7 +342,7 @@ public class MarketFragment extends Fragment implements RefreshablePage {
         int currentCash = snapshot.getCashBalance();
         int units = parsePositiveInt(inputTradeAmount.getText().toString());
 
-        if (units <= 0) {
+        if (units <= 0 || units > 10000) {
             textTradeEstimate.setText(R.string.market_estimate_placeholder);
             setTradeButtonStates(false, false);
             return;
@@ -344,8 +364,9 @@ public class MarketFragment extends Fragment implements RefreshablePage {
                             R.string.market_estimate_open, totalCost, units, unitPrice));
                 } else {
                     // close short estimate
-                    int pnl = (shortPos.getEntryPrice() - unitPrice) * units;
-                    int receive = units * shortPos.getEntryPrice(); // margin returned
+                    int released = units == shortPos.getUnits() ? shortPos.getCost() : (int)((long)shortPos.getCost() * units / shortPos.getUnits());
+                    int receive = Math.max(0, 2 * released - unitPrice * units);
+                    int pnl = receive - released;
                     textTradeEstimate.setText(getString(
                             R.string.market_estimate_close, receive, formatSignedTokens(pnl)));
                 }
@@ -380,96 +401,52 @@ public class MarketFragment extends Fragment implements RefreshablePage {
         setTradeButtonStates(canBuy, canSell);
     }
 
-    private void handleBuy() {
-        // Buy / Open: in 做多 mode → open long; in 做空 mode → open short
-        CampusMarketRepository.SchoolMarket market = CampusMarketRepository.getMarket(selectedMarketKey);
-        int units = parsePositiveInt(inputTradeAmount.getText().toString());
-        int unitPrice = getLivePrice(market);
-
-        MarketPortfolioStore.TradeResult result;
-        if ("short".equals(tradeMode)) {
-            result = MarketPortfolioStore.openShortUnits(requireContext(), selectedMarketKey, units, unitPrice);
-        } else {
-            result = MarketPortfolioStore.buyUnits(requireContext(), selectedMarketKey, units, unitPrice);
-        }
-
-        if (result.getStatus() == MarketPortfolioStore.TradeResult.STATUS_SUCCESS) {
-            lastTradeMessage = getString(
-                    R.string.market_transaction_success,
-                    result.getFilledUnits(),
-                    AppData.getForumLabel(requireContext(), selectedMarketKey),
-                    result.getCashBefore(),
-                    result.getCashAfter(),
-                    result.getPriceAfterTrade()
-            );
-            lastTradeStatus = result.getStatus();
-            inputTradeAmount.setText("");
-            Toast.makeText(requireContext(), lastTradeMessage, Toast.LENGTH_SHORT).show();
-            refreshContent();
-            host().refreshAllPages();
-            return;
-        }
-
-        if (result.getStatus() == MarketPortfolioStore.TradeResult.STATUS_INSUFFICIENT_BALANCE) {
-            lastTradeMessage = getString(R.string.market_transaction_insufficient_balance);
-        } else if (result.getStatus() == MarketPortfolioStore.TradeResult.STATUS_INVALID_AMOUNT) {
-            lastTradeMessage = getString(R.string.market_transaction_invalid_amount);
-        } else {
-            lastTradeMessage = getString(R.string.market_transaction_invalid_amount);
-        }
-        lastTradeStatus = result.getStatus();
-        renderTradeResult();
-    }
-
-    private void handleSell() {
-        // Sell / Close: in 做多 mode → close long; in 做空 mode → close short
-        CampusMarketRepository.SchoolMarket market = CampusMarketRepository.getMarket(selectedMarketKey);
-        int units = parsePositiveInt(inputTradeAmount.getText().toString());
-        int unitPrice = getLivePrice(market);
-
-        MarketPortfolioStore.TradeResult result;
-        if ("short".equals(tradeMode)) {
-            result = MarketPortfolioStore.closeShortUnits(requireContext(), selectedMarketKey, units, unitPrice);
-        } else {
-            result = MarketPortfolioStore.sellUnits(requireContext(), selectedMarketKey, units, unitPrice);
-        }
-
-        if (result.getStatus() == MarketPortfolioStore.TradeResult.STATUS_SUCCESS) {
-            lastTradeMessage = getString(
-                    R.string.market_sell_success,
-                    result.getFilledUnits(),
-                    AppData.getForumLabel(requireContext(), selectedMarketKey),
-                    result.getCashBefore(),
-                    result.getCashAfter(),
-                    result.getPriceAfterTrade()
-            );
-            lastTradeStatus = result.getStatus();
-            inputTradeAmount.setText("");
-            Toast.makeText(requireContext(), lastTradeMessage, Toast.LENGTH_SHORT).show();
-            refreshContent();
-            host().refreshAllPages();
-            return;
-        }
-
-        if (result.getStatus() == MarketPortfolioStore.TradeResult.STATUS_NO_POSITION) {
-            lastTradeMessage = getString(R.string.market_transaction_no_position);
-        } else if (result.getStatus() == MarketPortfolioStore.TradeResult.STATUS_INSUFFICIENT_POSITION) {
-            lastTradeMessage = getString(R.string.market_transaction_insufficient_position);
-        } else if (result.getStatus() == MarketPortfolioStore.TradeResult.STATUS_NO_SHORT_POSITION) {
-            lastTradeMessage = getString(R.string.market_transaction_no_short_position);
-        } else if (result.getStatus() == MarketPortfolioStore.TradeResult.STATUS_INSUFFICIENT_SHORT_POSITION) {
-            lastTradeMessage = getString(R.string.market_transaction_insufficient_short_position);
-        } else {
-            lastTradeMessage = getString(R.string.market_transaction_invalid_amount);
-        }
-        lastTradeStatus = result.getStatus();
-        renderTradeResult();
+    private boolean tradePending;
+    private java.util.UUID pendingTradeId;
+    private String pendingTradePayload;
+    private void handleBuy() { trade("short".equals(tradeMode) ? "OPEN_SHORT" : "BUY"); }
+    private void handleSell() { trade("short".equals(tradeMode) ? "CLOSE_SHORT" : "SELL"); }
+    private void trade(String action) {
+        if (tradePending || !ServerFeatures.marketReady()) return;
+        int units=parsePositiveInt(inputTradeAmount.getText().toString());
+        if (units<1 || units>10000) { Toast.makeText(requireContext(), R.string.market_transaction_invalid_amount, Toast.LENGTH_SHORT).show(); return; }
+        int price=CampusMarketRepository.getMarket(selectedMarketKey).getCurrentPrice();
+        String logical=selectedMarketKey+"|"+action+"|"+units+"|";
+        if (pendingTradePayload != null && pendingTradePayload.startsWith(logical)) price=Integer.parseInt(pendingTradePayload.substring(logical.length()));
+        String payload=logical+price;
+        // Preserve the key after an ambiguous network error so tapping Retry cannot buy twice.
+        if (!payload.equals(pendingTradePayload)) { pendingTradeId=java.util.UUID.randomUUID(); pendingTradePayload=payload; }
+        org.json.JSONObject body=new org.json.JSONObject();
+        try { body.put("requestId",pendingTradeId).put("forumKey",selectedMarketKey).put("action",action).put("units",units).put("expectedPrice",price); } catch(org.json.JSONException e) { return; }
+        android.content.Context tradeContext=requireContext().getApplicationContext();
+        tradePending=true; setTradeButtonStates(false,false);
+        ServerFeatures.call("POST","/api/market/trades",body,new backend.BackendModerationGateway.Callback<>() {
+            public void onSuccess(org.json.JSONObject result) {
+                tradePending=false; pendingTradePayload=null; pendingTradeId=null;
+                ServerFeatures.refreshMarket(tradeContext,true);
+                if (!isAdded() || getView()==null) return;
+                lastTradeMessage=getString(action.equals("BUY") || action.equals("OPEN_SHORT") ? R.string.market_transaction_success : R.string.market_sell_success, result.optInt("units"),AppData.getForumLabel(requireContext(),selectedMarketKey),result.optInt("cashBefore"),result.optInt("cashAfter"),result.optInt("price"));
+                lastTradeStatus=0; inputTradeAmount.setText(""); Toast.makeText(requireContext(),lastTradeMessage,Toast.LENGTH_SHORT).show();
+                ServerFeatures.refreshMarket(requireContext(),true); refreshContent();
+            }
+            public void onError(backend.BackendException error) {
+                tradePending=false; if (!error.hasAmbiguousWriteOutcome()) { pendingTradePayload=null; pendingTradeId=null; }
+                ServerFeatures.refreshMarket(tradeContext,true);
+                if (!isAdded() || getView()==null) return;
+                lastTradeMessage=error.getMessage();lastTradeStatus=1;renderTradeResult();
+                ServerFeatures.refreshMarket(requireContext(),true);refreshContent();
+            }
+        });
     }
 
     private void renderTradeResult() {
         if (textTradeResult == null) {
             return;
         }
+        if (!ServerFeatures.marketReady()) {
+            textTradeResult.setVisibility(View.VISIBLE); textTradeResult.setText(ServerFeatures.marketError() == null ? getString(R.string.feed_sync_loading) : ServerFeatures.marketError()); textTradeResult.setOnClickListener(v -> ServerFeatures.refreshMarket(requireContext(),true)); return;
+        }
+        textTradeResult.setOnClickListener(null);
         if (lastTradeMessage == null || lastTradeMessage.trim().isEmpty()) {
             textTradeResult.setVisibility(View.GONE);
             return;
@@ -580,6 +557,8 @@ public class MarketFragment extends Fragment implements RefreshablePage {
     }
 
     private void setTradeButtonStates(boolean buyEnabled, boolean sellEnabled) {
+        buyEnabled = buyEnabled && !tradePending && ServerFeatures.marketReady();
+        sellEnabled = sellEnabled && !tradePending && ServerFeatures.marketReady();
         buttonTradeBuy.setEnabled(buyEnabled);
         buttonTradeBuy.setAlpha(buyEnabled ? 1.0f : 0.62f);
         buttonTradeSell.setEnabled(sellEnabled);
@@ -642,38 +621,7 @@ public class MarketFragment extends Fragment implements RefreshablePage {
         return null;
     }
 
-    private double getLiveDayChangePercent(CampusMarketRepository.SchoolMarket market, int livePrice) {
-        List<CampusMarketRepository.MarketCandle> candles = market.getCandles();
-        if (candles.size() < 2) {
-            return 0d;
-        }
-
-        int previousClose = candles.get(candles.size() - 2).close;
-        if (previousClose == 0) {
-            return 0d;
-        }
-        return ((double) (livePrice - previousClose) * 100d) / previousClose;
-    }
-
-    private List<CampusMarketRepository.MarketCandle> buildDisplayCandles(
-            CampusMarketRepository.SchoolMarket market,
-            int livePrice
-    ) {
-        ArrayList<CampusMarketRepository.MarketCandle> displayCandles = new ArrayList<>(market.getCandles());
-        if (displayCandles.isEmpty()) {
-            return displayCandles;
-        }
-
-        int lastIndex = displayCandles.size() - 1;
-        CampusMarketRepository.MarketCandle last = displayCandles.get(lastIndex);
-        displayCandles.set(lastIndex, new CampusMarketRepository.MarketCandle(
-                last.open,
-                Math.max(last.high, livePrice),
-                Math.min(last.low, livePrice),
-                livePrice
-        ));
-        return displayCandles;
-    }
+    private double getLiveDayChangePercent(CampusMarketRepository.SchoolMarket market, int livePrice) { return market.getDayChangePercent(); }
 
     private int parsePositiveInt(String raw) {
         if (raw == null) {
@@ -693,8 +641,9 @@ public class MarketFragment extends Fragment implements RefreshablePage {
     private void setupPeriodChips(int onColor, int onSecondary) {
         if (layoutChartPeriod == null) return;
         layoutChartPeriod.removeAllViews();
-        String[] periods = {"intraday", "day", "week", "month"};
+        String[] periods = {"history", "intraday", "day", "week", "month"};
         int[] labelRes = {
+            R.string.chart_period_history,
             R.string.chart_period_intraday,
             R.string.chart_period_day,
             R.string.chart_period_week,
@@ -714,8 +663,7 @@ public class MarketFragment extends Fragment implements RefreshablePage {
             chip.setOnClickListener(v -> {
                 selectedPeriod = period;
                 CampusMarketRepository.SchoolMarket m = CampusMarketRepository.getMarket(selectedMarketKey);
-                List<CampusMarketRepository.MarketCandle> c = buildCandlesForPeriod(m, getLivePrice(m));
-                viewMarketChart.setData(c, buildLabelsForPeriod(c.size()));
+                renderChart(m);
                 int oc = ContextCompat.getColor(requireContext(), R.color.forum_header_on);
                 int os = ContextCompat.getColor(requireContext(), R.color.forum_header_on_secondary);
                 setupPeriodChips(oc, os);
@@ -727,133 +675,15 @@ public class MarketFragment extends Fragment implements RefreshablePage {
         }
     }
 
-    private List<CampusMarketRepository.MarketCandle> buildCandlesForPeriod(
-            CampusMarketRepository.SchoolMarket market, int livePrice) {
-        long seed = Math.abs((long) market.getForumKey().hashCode());
-        Random rng = new Random(seed);
-        switch (selectedPeriod) {
-            case "intraday": {
-                List<CampusMarketRepository.MarketCandle> daily = market.getCandles();
-                int base = daily.size() >= 2 ? daily.get(daily.size() - 2).close : livePrice;
-                List<CampusMarketRepository.MarketCandle> result = new ArrayList<>();
-                int prev = base;
-                for (int i = 0; i < 20; i++) {
-                    if (i == 19) {
-                        int open = prev;
-                        int swing = Math.max(1, (int)(Math.abs(livePrice - open) * 0.3) + (int)(open * 0.002));
-                        result.add(new CampusMarketRepository.MarketCandle(
-                                open,
-                                Math.max(open, livePrice) + swing,
-                                Math.min(open, livePrice) - swing,
-                                livePrice));
-                    } else {
-                        int maxMove = Math.max(1, (int)(prev * 0.012));
-                        int delta = (int)(rng.nextDouble() * maxMove * 2) - (int)(maxMove * 0.9);
-                        int close = Math.max(prev / 2, prev + delta);
-                        int swing = Math.max(1, (int)(Math.abs(delta) * 0.4) + (int)(prev * 0.003));
-                        result.add(new CampusMarketRepository.MarketCandle(
-                                prev,
-                                Math.max(prev, close) + rng.nextInt(swing + 1),
-                                Math.min(prev, close) - rng.nextInt(swing + 1),
-                                close));
-                        prev = close;
-                    }
-                }
-                return result;
-            }
-            case "week": {
-                int base = (int)(market.getCandles().get(0).open * 0.78);
-                List<CampusMarketRepository.MarketCandle> result = new ArrayList<>();
-                int prev = base;
-                for (int i = 0; i < 12; i++) {
-                    int maxMove = Math.max(1, (int)(prev * 0.055));
-                    int delta = (int)(rng.nextDouble() * maxMove * 2) - (int)(maxMove * 0.65);
-                    int close = (i == 11) ? livePrice : Math.max(prev / 2, prev + delta);
-                    int swing = Math.max(2, (int)(Math.abs(close - prev) * 0.6) + (int)(prev * 0.014));
-                    result.add(new CampusMarketRepository.MarketCandle(
-                            prev,
-                            Math.max(prev, close) + swing,
-                            Math.min(prev, close) - swing,
-                            close));
-                    prev = close;
-                }
-                return result;
-            }
-            case "month": {
-                int base = (int)(market.getCandles().get(0).open * 0.52);
-                List<CampusMarketRepository.MarketCandle> result = new ArrayList<>();
-                int prev = base;
-                for (int i = 0; i < 18; i++) {
-                    int maxMove = Math.max(1, (int)(prev * 0.1));
-                    int delta = (int)(rng.nextDouble() * maxMove * 2) - (int)(maxMove * 0.55);
-                    int close = (i == 17) ? livePrice : Math.max(prev / 2, prev + delta);
-                    int swing = Math.max(3, (int)(Math.abs(close - prev) * 0.7) + (int)(prev * 0.022));
-                    result.add(new CampusMarketRepository.MarketCandle(
-                            prev,
-                            Math.max(prev, close) + swing,
-                            Math.min(prev, close) - swing,
-                            close));
-                    prev = close;
-                }
-                return result;
-            }
-            default:
-                return buildDisplayCandles(market, livePrice);
-        }
+    private void renderChart(CampusMarketRepository.SchoolMarket market) {
+        MarketChartSeries.Series series = MarketChartSeries.select(market.getCandles(), selectedPeriod);
+        viewMarketChart.setSeries(series);
+        if ("history".equals(selectedPeriod)) textMarketChartNote.setText(R.string.market_chart_history_note);
+        else textMarketChartNote.setText(getString("intraday".equals(selectedPeriod)
+                ? R.string.market_chart_intraday_note : R.string.market_chart_period_note, series.candles().size()));
+        textMarketChartNote.setTextColor(ContextCompat.getColor(requireContext(), R.color.forum_header_on_secondary));
     }
 
-    private List<String> buildLabelsForPeriod(int candleCount) {
-        Calendar cal = Calendar.getInstance();
-        boolean isChinese = "zh-CN".equals(UiPreferences.getLanguageTag(requireContext()));
-        List<String> labels = new ArrayList<>();
-        switch (selectedPeriod) {
-            case "intraday": {
-                // Last candle = current system time; go back ~30min per candle
-                int nowMinutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
-                int stepMinutes = 30;
-                for (int i = 0; i < candleCount; i++) {
-                    int offset = (candleCount - 1 - i) * stepMinutes;
-                    int totalMin = nowMinutes - offset;
-                    if (totalMin < 0) totalMin += 24 * 60;
-                    labels.add(String.format(Locale.US, "%d:%02d", totalMin / 60, totalMin % 60));
-                }
-                break;
-            }
-            case "week": {
-                // Weekly: show Monday dates going back
-                for (int i = candleCount - 1; i >= 0; i--) {
-                    Calendar c = Calendar.getInstance();
-                    c.add(Calendar.WEEK_OF_YEAR, -i);
-                    labels.add(0, String.format(Locale.US, "%d/%d", c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH)));
-                }
-                break;
-            }
-            case "month": {
-                // Monthly: each candle is ~2 weeks
-                for (int i = candleCount - 1; i >= 0; i--) {
-                    Calendar c = Calendar.getInstance();
-                    c.add(Calendar.WEEK_OF_YEAR, -i * 2);
-                    String label = isChinese
-                            ? (c.get(Calendar.MONTH) + 1) + "月"
-                            : String.format(Locale.US, "%d/%d", c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH));
-                    labels.add(0, label);
-                }
-                break;
-            }
-            default: { // "day"
-                // Daily: past candleCount days
-                for (int i = candleCount - 1; i >= 0; i--) {
-                    Calendar c = Calendar.getInstance();
-                    c.add(Calendar.DAY_OF_YEAR, -i);
-                    labels.add(0, String.format(Locale.US, "%d/%d", c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH)));
-                }
-                break;
-            }
-        }
-        return labels;
-    }
-
-    @Nullable
     private MarketPortfolioStore.ShortPositionSnapshot findShortPosition(
             List<MarketPortfolioStore.ShortPositionSnapshot> shorts, String forumKey) {
         for (MarketPortfolioStore.ShortPositionSnapshot s : shorts) {

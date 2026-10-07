@@ -31,6 +31,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import backend.BackendException;
+import backend.BackendForumGateway;
+import backend.BackendModerationGateway;
+import backend.BackendRuntime;
 import dao.model.Message;
 import dao.model.Post;
 
@@ -55,6 +59,13 @@ public class ChannelsFragment extends Fragment implements RefreshablePage {
     private String currentForumKey;
     private String searchQuery = "";
     private String selectedCategory = "";
+    private boolean synchronizing;
+    private View layoutFeedSync;
+    private TextView textFeedSync;
+    private View buttonFeedRetry;
+    private long syncRevision;
+    private com.google.android.material.button.MaterialButton buttonFeedMore;
+    private String nextFeedCursor;
 
     @Nullable
     @Override
@@ -82,6 +93,12 @@ public class ChannelsFragment extends Fragment implements RefreshablePage {
         inputChannelSearch = view.findViewById(R.id.inputChannelSearch);
         buttonClearSearch = view.findViewById(R.id.buttonClearSearch);
         recyclerPosts = view.findViewById(R.id.recyclerPosts);
+        layoutFeedSync = view.findViewById(R.id.layoutFeedSync);
+        textFeedSync = view.findViewById(R.id.textFeedSync);
+        buttonFeedRetry = view.findViewById(R.id.buttonFeedRetry);
+        buttonFeedRetry.setOnClickListener(v -> synchronizeSelectedForum());
+        buttonFeedMore = view.findViewById(R.id.buttonFeedMore);
+        buttonFeedMore.setOnClickListener(v -> synchronizeSelectedForum(true));
         radioChannelCategories = view.findViewById(R.id.radioChannelCategories);
         buttonChannelsDrawer = view.findViewById(R.id.buttonChannelsDrawer);
         ImageButton buttonCreatePost = view.findViewById(R.id.buttonCreatePost);
@@ -139,7 +156,7 @@ public class ChannelsFragment extends Fragment implements RefreshablePage {
     @Override
     public void onResume() {
         super.onResume();
-        refreshContent();
+        synchronizeSelectedForum();
     }
 
     @Override
@@ -153,6 +170,7 @@ public class ChannelsFragment extends Fragment implements RefreshablePage {
         String selectedForumKey = AppData.getSelectedForumKey();
         if (currentForumKey == null || !currentForumKey.equals(selectedForumKey)) {
             currentForumKey = selectedForumKey;
+            synchronizeSelectedForum();
             if (!searchQuery.isEmpty()) {
                 inputChannelSearch.setText("");
                 return;
@@ -170,12 +188,15 @@ public class ChannelsFragment extends Fragment implements RefreshablePage {
         if (!selectedCategory.isEmpty() && !selectedCategory.equals(getString(R.string.category_all))) {
             posts.removeIf(post -> !selectedCategory.equals(AppData.getPostCategory(requireContext(), post)));
         }
-        PostAdapter adapter = new PostAdapter(posts);
-        adapter.setOnClickListener(this::openPost);
-        adapter.setOnVoteClickListener((post, direction) -> AppData.togglePostVote(post, direction));
-        adapter.setOnBookmarkClickListener(AppData::togglePostBookmark);
-        adapter.setOnUserClickListener(this::openUserProfile);
-        recyclerPosts.setAdapter(adapter);
+        if(recyclerPosts.getAdapter() instanceof PostAdapter adapter) adapter.replacePosts(posts);
+        else {
+            PostAdapter adapter = new PostAdapter(posts);
+            adapter.setOnClickListener(this::openPost);
+            adapter.setOnVoteClickListener((post, direction) -> AppData.togglePostVote(post, direction));
+            adapter.setOnBookmarkClickListener(AppData::togglePostBookmark);
+            adapter.setOnUserClickListener(this::openUserProfile);
+            recyclerPosts.setAdapter(adapter);
+        }
 
         boolean empty = posts.isEmpty();
         recyclerPosts.setVisibility(empty ? View.GONE : View.VISIBLE);
@@ -190,9 +211,68 @@ public class ChannelsFragment extends Fragment implements RefreshablePage {
         }
 
         if (!searchQuery.trim().isEmpty() && !empty && textSearchAssistantBody != null) {
-            textSearchAssistantBody.setText(buildAiSummary(posts, searchQuery.trim()));
+            textSearchAssistantBody.setText(buildSearchSummary(posts));
             layoutSearchAssistant.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void synchronizeSelectedForum() {
+        synchronizeSelectedForum(false);
+    }
+
+    private void synchronizeSelectedForum(boolean more) {
+        if (!isAdded() || getView() == null) return;
+        BackendRuntime backend = BackendRuntime.from(requireContext());
+        if (!backend.config().isEnabled()) {
+            layoutFeedSync.setVisibility(View.GONE);
+            refreshContent();
+            return;
+        }
+        if (synchronizing) return;
+        if (more && nextFeedCursor == null) return;
+        synchronizing = true;
+        long request = ++syncRevision;
+        String forumKey = AppData.getSelectedForumKey();
+        String origin = backend.config().baseUrl();
+        layoutFeedSync.setVisibility(View.VISIBLE);
+        textFeedSync.setText(R.string.feed_sync_loading);
+        buttonFeedRetry.setEnabled(false);
+        buttonFeedMore.setEnabled(false);
+        backend.forum().fetchFeedPage(forumKey, more ? nextFeedCursor : null,
+                new BackendModerationGateway.Callback<backend.BackendForumGateway.FeedPage>() {
+                    @Override public void onSuccess(backend.BackendForumGateway.FeedPage value) {
+                        if (!isAdded() || getView() == null || request != syncRevision) return;
+                        synchronizing = false;
+                        if (!origin.equals(backend.config().baseUrl())) { synchronizeSelectedForum(); return; }
+                        if (more) {
+                            for (backend.BackendForumGateway.PostSnapshot post : value.items()) AppData.upsertRemotePost(post, origin);
+                        } else AppData.synchronizeForum(forumKey, value.items(), origin);
+                        nextFeedCursor = value.hasMore() ? value.nextCursor() : null;
+                        buttonFeedMore.setEnabled(true);
+                        buttonFeedMore.setVisibility(nextFeedCursor == null ? View.GONE : View.VISIBLE);
+                        layoutFeedSync.setVisibility(View.GONE);
+                        buttonFeedRetry.setEnabled(true);
+                        buttonFeedMore.setEnabled(true);
+                        refreshContent();
+                        if (!forumKey.equals(AppData.getSelectedForumKey())) synchronizeSelectedForum();
+                    }
+                    @Override public void onError(BackendException error) {
+                        if (!isAdded() || getView() == null || request != syncRevision) return;
+                        synchronizing = false;
+                        layoutFeedSync.setVisibility(View.VISIBLE);
+                        textFeedSync.setText(getString(R.string.feed_sync_failed) + "\n" + error.getMessage());
+                        buttonFeedRetry.setEnabled(true);
+                        buttonFeedMore.setEnabled(true);
+                        refreshContent();
+                        if (!forumKey.equals(AppData.getSelectedForumKey())) synchronizeSelectedForum();
+                    }
+                });
+    }
+
+    @Override public void onDestroyView() {
+        syncRevision++;
+        synchronizing = false;
+        super.onDestroyView();
     }
 
     private void openPost(Post post) {
@@ -323,7 +403,7 @@ public class ChannelsFragment extends Fragment implements RefreshablePage {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
-    private String buildAiSummary(ArrayList<Post> posts, String query) {
+    private String buildSearchSummary(ArrayList<Post> posts) {
         if (posts == null || posts.isEmpty()) {
             return "";
         }
@@ -339,10 +419,9 @@ public class ChannelsFragment extends Fragment implements RefreshablePage {
             ArrayList<Message> msgs = AppData.getMessages(post);
             Message root = AppData.getRootMessage(post);
             UUID rootId = root != null ? root.id() : null;
-            int replyCount = 0;
+            int replyCount = AppData.getPostCommentCount(post);
             for (Message m : msgs) {
                 if (rootId != null && m.id().equals(rootId)) continue;
-                replyCount++;
                 int score = AppData.getMessageVoteScore(m);
                 if (score > bestReplyScore) {
                     bestReplyScore = score;
@@ -360,64 +439,20 @@ public class ChannelsFragment extends Fragment implements RefreshablePage {
             }
         }
 
-        String hotSummary = summarizePost(hotPost, query);
+        String hotSummary = summarizePost(hotPost);
         String topSummary = bestReply == null
-                ? summarizePost(topVotePost, query)
+                ? summarizePost(topVotePost)
                 : summarizeReply(bestReply);
-        return "🔥 热议：" + limitSummary(hotSummary) + "\n"
-                + "💬 高赞：" + limitSummary(topSummary);
+        return getString(R.string.search_popular_summary,limitSummary(hotSummary)) + "\n"
+                + getString(R.string.search_top_summary,limitSummary(topSummary));
     }
 
-    private String summarizePost(Post post, String query) {
-        String text = compactText(AppData.getPostTitle(post) + " " + AppData.getPostBodyPreview(post));
-        String lowered = text.toLowerCase(java.util.Locale.ROOT);
-        String normalizedQuery = query == null ? "" : query.trim();
-        if (containsAny(lowered, "comp", "lab", "cpu", "digital", "课程", "作业", "考试")) {
-            return "课程压力集中";
-        }
-        if (containsAny(lowered, "reply", "replies", "comment", "nest", "缩进", "回复", "评论")) {
-            return "回复层级要清晰";
-        }
-        if (containsAny(lowered, "reddit", "feed", "layout", "首页", "信息流", "版式")) {
-            return "首页更像信息流";
-        }
-        if (containsAny(lowered, "image", "photo", "logo", "图片", "配图", "标志")) {
-            return "配图呈现要干净";
-        }
-        if (containsAny(lowered, "search", "keyboard", "搜索", "键盘")) {
-            return "搜索体验要稳定";
-        }
-        if (!normalizedQuery.isEmpty()) {
-            return normalizedQuery + "讨论升温";
-        }
-        return text.isEmpty() ? "讨论正在升温" : text;
+    private String summarizePost(Post post) {
+        return compactText(AppData.getPostDisplayTitle(requireContext(),post)+" · "+AppData.getPostDisplayBody(requireContext(),post));
     }
 
     private String summarizeReply(Message reply) {
-        String text = compactText(reply == null ? "" : reply.message());
-        String lowered = text.toLowerCase(java.util.Locale.ROOT);
-        if (containsAny(lowered, "agree", "same", "赞成", "同意")) {
-            return "多数赞成这个方向";
-        }
-        if (containsAny(lowered, "clear", "obvious", "清楚", "明显")) {
-            return "结构清楚最重要";
-        }
-        if (containsAny(lowered, "mistake", "debug", "错误", "调试")) {
-            return "调试痛点明显";
-        }
-        if (containsAny(lowered, "reply", "nest", "thread", "回复", "层级")) {
-            return "回复层级需保留";
-        }
-        return text.isEmpty() ? "高赞观点集中" : text;
-    }
-
-    private boolean containsAny(String text, String... needles) {
-        for (String needle : needles) {
-            if (text.contains(needle)) {
-                return true;
-            }
-        }
-        return false;
+        return compactText(AppData.getMessageDisplayContent(requireContext(),reply));
     }
 
     private String compactText(String text) {

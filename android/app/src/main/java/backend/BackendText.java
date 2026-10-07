@@ -33,10 +33,19 @@ final class BackendText {
         return current == null ? fallback : current.getString(resId);
     }
 
-    static String adminCredentialsMissing() {
-        return get(
-                R.string.backend_error_admin_credentials,
-                "Enter the backend administrator credentials in Settings first.");
+    static String adminLoginRequired() {
+        return get(R.string.admin_login_required, "Administrator session ended. Please sign in again.");
+    }
+
+    static String adminRoleRequired() {
+        return get(R.string.admin_role_required, "This account is not an active server administrator.");
+    }
+
+    static String memberLoginRequired() {
+        return get(R.string.member_login_required, "Your session ended. Please sign in again.");
+    }
+    static String memberRoleRequired() {
+        return get(R.string.member_role_required, "Use Member for a member account and Admin for an administrator account.");
     }
 
     static String unreachable(String baseUrl) {

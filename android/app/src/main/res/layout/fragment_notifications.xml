@@ -74,6 +74,20 @@
         </RadioGroup>
     </HorizontalScrollView>
 
+    <TextView
+        android:id="@+id/textNotificationsStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/ink_secondary"
+        android:visibility="gone" />
+    <Button
+        android:id="@+id/buttonNotificationsRetry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/feed_retry"
+        android:visibility="gone" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerNotifications"
         android:layout_width="match_parent"

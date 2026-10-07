@@ -12,11 +12,11 @@ import org.junit.Test;
 public class BackendConfigTest {
 
     @Test
-    public void defaultsToTheEmulatorHostAndOnlineMode() {
+    public void defaultsToTheHostedDemoAndOnlineMode() {
         BackendConfig config = new BackendConfig(new MemoryStore());
 
         assertTrue(config.isEnabled());
-        assertEquals("http://10.0.2.2:8080", config.baseUrl());
+        assertEquals(BackendConfig.DEFAULT_BASE_URL, config.baseUrl());
     }
 
     @Test
@@ -30,18 +30,32 @@ public class BackendConfigTest {
     }
 
     @Test
-    public void neverPersistsTheAdministratorPassword() {
+    public void scrubsLegacyAdministratorCredentials() {
         MemoryStore store = new MemoryStore();
-        BackendConfig config = new BackendConfig(store);
+        store.put("admin_username", "moderator");
+        store.put("admin_password", "correct-horse-battery-staple");
 
-        config.setAdminCredentials("moderator", "correct-horse-battery-staple");
+        new BackendConfig(store);
 
-        assertTrue(config.hasAdminCredentials());
-        assertEquals("moderator", store.values.get("admin_username"));
-        assertFalse(store.values.containsValue("correct-horse-battery-staple"));
+        assertFalse(store.values.containsKey("admin_username"));
+        assertFalse(store.values.containsKey("admin_password"));
+    }
 
-        BackendConfig afterProcessRestart = new BackendConfig(store);
-        assertFalse(afterProcessRestart.hasAdminCredentials());
+    @Test
+    public void upgradesPreviouslySavedDemoUrlOnceAndAllowsExplicitRollback() {
+        MemoryStore store = new MemoryStore();
+        store.put("base_url", BackendConfig.RENDER_FALLBACK_URL + "/");
+        BackendConfig upgraded = new BackendConfig(store);
+        assertEquals(BackendConfig.DEFAULT_BASE_URL, upgraded.baseUrl());
+        upgraded.setBaseUrl(BackendConfig.RENDER_FALLBACK_URL);
+        assertEquals(BackendConfig.RENDER_FALLBACK_URL, new BackendConfig(store).baseUrl());
+    }
+
+    @Test
+    public void keepsCustomServerDuringDemoHostUpgrade() {
+        MemoryStore store = new MemoryStore();
+        store.put("base_url", "http://10.0.2.2:8080");
+        assertEquals("http://10.0.2.2:8080", new BackendConfig(store).baseUrl());
     }
 
     static final class MemoryStore implements KeyValueStore {

@@ -3,7 +3,7 @@ package backend;
 import java.util.List;
 import java.util.UUID;
 
-/** An immutable local content chain ready to be mirrored and reported. */
+/** An immutable UI content snapshot referencing a server report target. */
 public record BackendReportTarget(
         PostSnapshot post,
         List<CommentSnapshot> comments,

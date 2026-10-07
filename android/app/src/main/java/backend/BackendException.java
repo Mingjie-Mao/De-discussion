@@ -38,6 +38,11 @@ public class BackendException extends RuntimeException {
         return status == 0;
     }
 
+    /** A transport or gateway/server failure cannot prove a write was not committed. */
+    public boolean hasAmbiguousWriteOutcome() {
+        return status == 0 || status >= 500;
+    }
+
     /**
      * The server explains itself in an RFC 7807 problem detail, which is far
      * more useful than the status alone — "You have already reported this

@@ -1,0 +1,1913 @@
+{
+  "bookmarks": [
+    "9a62bc9e-12bf-38ae-bda6-618d36103266"
+  ],
+  "following": [
+    "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+    "34882866-bf56-358d-a025-75f684f96dab",
+    "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a"
+  ],
+  "posts": [
+    {
+      "forum": "um",
+      "image": null,
+      "score": 22,
+      "ageMs": 1860052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 12,
+          "ageMs": 1560052,
+          "author": "ab92047d-c576-360d-8d24-d7190f960145",
+          "body": "45 minutes is okay if it's one direct trip. Transfers make it exhausting.",
+          "localId": "5d66f028-18cc-3c29-868c-69332f9171d7"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 11,
+          "ageMs": 1440052,
+          "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+          "body": "Factor in 8am classes and rainy days. You'll want to be closer.",
+          "localId": "6fe8b56e-532c-3b7f-a732-60aa4b974d3a"
+        }
+      ],
+      "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+      "pinRank": null,
+      "title": "How long is too long for an off-campus commute?",
+      "body": "Found a place with decent rent, but it's 45 minutes each way to campus. Is that too much long-term?",
+      "category": "Life",
+      "localId": "81e1ca05-aff3-33c2-b064-a0dc4faaf94c"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 26,
+      "ageMs": 1740052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 18,
+          "ageMs": 1380052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "State the tool, what you used it for, and what you changed yourself. Don't submit raw AI output.",
+          "localId": "e1830ba5-96e2-3b47-aba7-ad06c9b3af46"
+        },
+        {
+          "parent": "e1830ba5-96e2-3b47-aba7-ad06c9b3af46",
+          "image": null,
+          "score": 7,
+          "ageMs": 1260052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "That's much clearer than just writing ChatGPT assisted.",
+          "localId": "df9c2fef-e0d7-3bec-88ef-86346b5e98a9"
+        }
+      ],
+      "author": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+      "pinRank": null,
+      "title": "Assignment allows AI, but how exactly should we cite it?",
+      "body": "The course says AI is allowed for debugging and brainstorming, but must be disclosed. Does anyone know the clean format?",
+      "category": "AI",
+      "localId": "8625216f-1c43-394f-be72-2e45406876f1"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 22,
+      "ageMs": 720052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 12,
+          "ageMs": 540052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "Photography society is good: frequent events and beginner-friendly.",
+          "localId": "243f6e89-b408-314c-afcd-5026f2f4e006"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 8,
+          "ageMs": 420052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "Language exchange society is very chill, not awkward even on the first visit.",
+          "localId": "4303e01a-e480-36db-b417-3d9ce3ff45bc"
+        }
+      ],
+      "author": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+      "pinRank": null,
+      "title": "Which club fair stalls are actually worth lining up for?",
+      "body": "Queued twenty minutes and only got a flyer, mildly tragic. Any societies with real events and easy ways to meet people?",
+      "category": "Social",
+      "localId": "86372884-9959-39b1-b2d5-d33acc62cd9c"
+    },
+    {
+      "forum": "anu",
+      "image": null,
+      "score": 23,
+      "ageMs": 1560052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 10,
+          "ageMs": 1320052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "The round tables near the windows are good, usually free before 3pm.",
+          "localId": "419a482f-8433-3c76-91ad-d64ebcc9fd35"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 12,
+          "ageMs": 1200052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "If you need to record, book a small room in Marie Reay instead.",
+          "localId": "b81b175b-51a7-3d3e-a8cf-1bf144116d88"
+        },
+        {
+          "parent": "b81b175b-51a7-3d3e-a8cf-1bf144116d88",
+          "image": null,
+          "score": 6,
+          "ageMs": 1080052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Yep, Marie Reay has much better sound isolation.",
+          "localId": "2d1271a1-5916-355e-850f-570b119a676e"
+        }
+      ],
+      "author": "ab92047d-c576-360d-8d24-d7190f960145",
+      "pinRank": null,
+      "title": "Where is good for group discussion on Chifley level 2?",
+      "body": "I need to run through a presentation with three people tomorrow and don't want to annoy the quiet zone. Any good spots where talking is okay?",
+      "category": "Study",
+      "localId": "864d4cb3-7d1f-3e96-a966-634bb8a2e49a"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 17,
+      "ageMs": 480052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 10,
+          "ageMs": 300052,
+          "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+          "body": "I manually add classes to Google Calendar with a 10-minute alert.",
+          "localId": "49335bbc-ac99-3590-a412-a70062b3f818"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 7,
+          "ageMs": 180052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "Automatic sync would actually be a great small project.",
+          "localId": "b8040df1-cd0d-3cc0-a997-438a3d2590d3"
+        }
+      ],
+      "author": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+      "pinRank": null,
+      "title": "Campus app timetable alerts are always five minutes late",
+      "body": "Twice now the alert came late enough that I nearly missed class. Is there a way to sync it to Google Calendar, or what do people use instead?",
+      "category": "AI",
+      "localId": "8dbaf4cf-a37a-3fac-8c98-6adebebee8e7"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 18,
+      "ageMs": 3720052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 3300052,
+          "author": "ab92047d-c576-360d-8d24-d7190f960145",
+          "body": "Brewtown on Anzac Parade does a flat white for $4.50 and it's actually good.",
+          "localId": "828ea467-8101-3e3d-95d2-bab8d96c3207"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 7,
+          "ageMs": 3000052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "The vending machine on Main Walkway does $2.50 coffee for emergencies.",
+          "localId": "b9a57442-cde4-32d2-b836-ba63ad6f784a"
+        }
+      ],
+      "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+      "pinRank": null,
+      "title": "Best affordable coffee near UNSW?",
+      "body": "The café next to the library just hiked prices to $7 a cup. Anyone know a better deal around Kensington?",
+      "category": "Social",
+      "localId": "93cf9e6b-2441-3f5c-a013-0a87725cfa0e"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 17,
+      "ageMs": 420052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 8,
+          "ageMs": 300052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "For a 9am class, leave at least a 15-minute buffer.",
+          "localId": "9c21b7d3-6f2b-3a30-b345-cad8f156aa2c"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 7,
+          "ageMs": 240052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "On rainy days go earlier. The queues get dramatic.",
+          "localId": "5b6ee128-6ecb-3a22-9c6f-2323b842b5ab"
+        }
+      ],
+      "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+      "pinRank": null,
+      "title": "Is light rail delay a real risk for morning classes?",
+      "body": "Thinking of moving near Randwick, but heard the light rail can crawl in the morning. How early do people leave?",
+      "category": "Life",
+      "localId": "93e12b09-e249-312e-89dd-806e3122298a"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 18,
+      "ageMs": 1380052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 1020052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "Open with a question, then say your talk will answer it. Easier for the audience to follow.",
+          "localId": "ea9aef32-d8de-3b34-9ea6-0e37bd881aba"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 8,
+          "ageMs": 840052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "Don't memorize everything. Lock in the first sentence, then speak from keywords.",
+          "localId": "15cced73-7bae-3e55-9e9d-b9d5660a8b0d"
+        }
+      ],
+      "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+      "pinRank": null,
+      "title": "How do you start a presentation without sounding awkward?",
+      "body": "Every presentation I start with hi everyone today we will talk about... and it feels stiff. Any smoother openings?",
+      "category": "Study",
+      "localId": "9a62bc9e-12bf-38ae-bda6-618d36103266"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 21,
+      "ageMs": 720052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 12,
+          "ageMs": 540052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "Badminton club has beginner nights and they're very friendly.",
+          "localId": "899e206d-de87-3a41-883a-4417705ed51d"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 420052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Climbing teaches safety basics on your first visit. Don't worry.",
+          "localId": "af79b653-5eb1-3ca0-b700-fff9c0bcc411"
+        }
+      ],
+      "author": "ab92047d-c576-360d-8d24-d7190f960145",
+      "pinRank": null,
+      "title": "Can total beginners join sports clubs?",
+      "body": "Thinking of trying badminton or climbing, but I've barely done either. Do clubs expect you to already be good?",
+      "category": "Social",
+      "localId": "9d579de1-beb4-312f-a0e7-ac7c31f1f83a"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 19,
+      "ageMs": 540052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 10,
+          "ageMs": 360052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "There's an onigiri place near Mathews. $8.50 and surprisingly filling.",
+          "localId": "9fdda4e9-af84-3700-8021-1eff195335f6"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 300052,
+          "author": "ec09c99b-4977-3e08-aa04-d6f18a77cca3",
+          "body": "Aldi bread plus tuna is my budget survival combo.",
+          "localId": "29874aac-3557-3810-a0d7-22261f81c029"
+        }
+      ],
+      "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+      "pinRank": null,
+      "title": "Does sub-$10 lunch still exist near campus?",
+      "body": "Food keeps getting more expensive. Looking for places within walking distance where you can still get full under $10. Hidden menu tips welcome.",
+      "category": "Life",
+      "localId": "b45e9eb7-4fdc-3a59-b411-e7aede98b6be"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 28,
+      "ageMs": 600052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 15,
+          "ageMs": 480052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "I list the tool, date, purpose, and state that the final content was rewritten by me.",
+          "localId": "993ed7e0-2179-3160-90b3-ab69a969dfec"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 360052,
+          "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+          "body": "I wouldn't paste the full prompts unless they ask. It takes too much space.",
+          "localId": "ee22fc4a-2470-3a20-95ec-545f289bfad1"
+        },
+        {
+          "parent": "ee22fc4a-2470-3a20-95ec-545f289bfad1",
+          "image": null,
+          "score": 5,
+          "ageMs": 300052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "A concise disclosure looks more professional.",
+          "localId": "afc2dd18-fdd7-351c-9957-819008ff6f29"
+        }
+      ],
+      "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+      "pinRank": null,
+      "title": "How strict is USYD's AI disclosure now?",
+      "body": "Some courses allow it, some write it vaguely. Has anyone seen a clear disclosure template that tutors actually accept?",
+      "category": "AI",
+      "localId": "bd51369a-f652-3fe7-8454-39caffd1ec4a"
+    },
+    {
+      "forum": "anu",
+      "image": null,
+      "score": 29,
+      "ageMs": 1440052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 17,
+          "ageMs": 1140052,
+          "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+          "body": "I write my own notes first, then ask AI to find gaps. That keeps me from being carried by it.",
+          "localId": "105306b8-c025-3bfe-8e72-1a936bc72842"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 15,
+          "ageMs": 960052,
+          "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+          "body": "AI-generated quizzes are more useful than summaries. If you can't answer them, you don't understand it yet.",
+          "localId": "d6c4ed32-d55d-3e17-811c-1a06f6c80430"
+        }
+      ],
+      "author": "34882866-bf56-358d-a025-75f684f96dab",
+      "pinRank": null,
+      "title": "Is using AI to clean lecture notes making me too dependent?",
+      "body": "I paste lecture transcripts into AI to extract key points, but I'm worried I'm just reading summaries instead of actually learning. How do you balance speed and understanding?",
+      "category": "AI",
+      "localId": "d6949ab0-af55-31e7-953d-5cfe10baee3d"
+    },
+    {
+      "forum": "anu",
+      "image": "avatar_anu.jpg",
+      "score": 42,
+      "ageMs": 5760052,
+      "comments": [
+        {
+          "parent": null,
+          "image": "avatar_unsw.jpg",
+          "score": 14,
+          "ageMs": 5280052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "I agree, especially if the drawer only handles community switching. That would make the home screen much cleaner.",
+          "localId": "6407e049-cd02-31dd-86d9-f945a8e019cb"
+        },
+        {
+          "parent": "6407e049-cd02-31dd-86d9-f945a8e019cb",
+          "image": null,
+          "score": 9,
+          "ageMs": 4920052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Using separators instead of cards would feel much closer to Reddit and speed up the visual rhythm.",
+          "localId": "8a91af76-7129-31a6-b42d-df29fda7eb0e"
+        },
+        {
+          "parent": "6407e049-cd02-31dd-86d9-f945a8e019cb",
+          "image": null,
+          "score": 6,
+          "ageMs": 4860052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "If we want to show nesting clearly, we should add a second-floor reply here so the indentation reads immediately.",
+          "localId": "c0fbbd67-046d-3f3b-b960-a5481d1b0909"
+        },
+        {
+          "parent": "c0fbbd67-046d-3f3b-b960-a5481d1b0909",
+          "image": null,
+          "score": 4,
+          "ageMs": 4800052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "A third-floor reply can stay very simple as long as the avatar, username, and actions still hold together.",
+          "localId": "dfde59af-a381-36a1-b1a9-ad08b2d80f11"
+        },
+        {
+          "parent": "6407e049-cd02-31dd-86d9-f945a8e019cb",
+          "image": null,
+          "score": -3,
+          "ageMs": 4740052,
+          "author": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+          "body": "Stop overthinking it and just copy the layout.",
+          "localId": "544a78de-3497-3f4a-9116-94e8d689338d"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 18,
+          "ageMs": 4440052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "Borrow the structure if it helps, but keep the tone constructive. The real story is product clarity plus moderation.",
+          "localId": "eafd82fd-1d5e-3315-9779-13b6ea249b33"
+        }
+      ],
+      "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+      "pinRank": 0,
+      "title": "Should the ANU home feed lean fully into a Reddit-style layout?",
+      "body": "I want the home feed to feel more like a discussion stream: less chunky cards, more focus on the community name, title, body, and comment entry. It should read like a real social product during the demo.",
+      "category": "AI",
+      "localId": "dd23d20e-effa-322d-9624-6f80c7e50537"
+    },
+    {
+      "forum": "anu",
+      "image": null,
+      "score": 28,
+      "ageMs": 4020052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 11,
+          "ageMs": 3600052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "Yes. Markers can immediately see the multi-forum structure even if only one forum is populated right now.",
+          "localId": "6c6eb38a-ec32-3823-b5ed-8f3f44fb6c87"
+        },
+        {
+          "parent": "6c6eb38a-ec32-3823-b5ed-8f3f44fb6c87",
+          "image": null,
+          "score": 7,
+          "ageMs": 3360052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "It also makes empty-state handling and new-post refreshes much easier to test.",
+          "localId": "444756f5-3ad9-367b-9cc6-c3a5d78f8b5d"
+        },
+        {
+          "parent": "444756f5-3ad9-367b-9cc6-c3a5d78f8b5d",
+          "image": null,
+          "score": 5,
+          "ageMs": 3240052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "One more third-floor reply here lets us show forum switching and deeper threading in the same post.",
+          "localId": "aae80149-54c4-34a5-a3d4-cc1f27ca6a15"
+        }
+      ],
+      "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+      "pinRank": null,
+      "title": "Can we fully seed ANU first and leave the other three forums empty?",
+      "body": "My plan is to fully populate the ANU forum first, while UNSW, USYD, and UM show an empty state for now. That still lets us prove the forum switching flow.",
+      "category": "Social",
+      "localId": "e1963647-cbca-39ef-abba-e60ff919b1a3"
+    },
+    {
+      "forum": "usyd",
+      "image": "avatar_usyd.jpg",
+      "score": 13,
+      "ageMs": 3180052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 4,
+          "ageMs": 2820052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "That works well. Users can immediately feel the difference in content direction when they switch forums.",
+          "localId": "fc340d2d-6ee7-3aa8-9e41-2389025ab4c1"
+        },
+        {
+          "parent": null,
+          "image": "avatar_um.jpg",
+          "score": 3,
+          "ageMs": 2700052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "I also want one cleaner nested thread in this forum.",
+          "localId": "67621846-f7ff-34b4-811a-6d454bdaa054"
+        },
+        {
+          "parent": "67621846-f7ff-34b4-811a-6d454bdaa054",
+          "image": null,
+          "score": 2,
+          "ageMs": 2580052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "Then this can be the second floor, which also proves the same layout works for more academic threads.",
+          "localId": "2781d9c3-4580-3146-bac7-b5329aa98994"
+        },
+        {
+          "parent": "2781d9c3-4580-3146-bac7-b5329aa98994",
+          "image": null,
+          "score": 2,
+          "ageMs": 2520052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "A third-floor follow-up here gives USYD a full nesting example too.",
+          "localId": "ab8a4730-ecc5-3618-b894-e21a80550d17"
+        }
+      ],
+      "author": "34882866-bf56-358d-a025-75f684f96dab",
+      "pinRank": null,
+      "title": "The USYD forum could lean a bit more academic",
+      "body": "We could use it for topics like data-structure explanations, project retrospectives, or clearer UML storytelling. That gives each forum a distinct personality.",
+      "category": "Study",
+      "localId": "e2826668-c9ff-3496-b799-c76ba649eb13"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 26,
+      "ageMs": 600052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 15,
+          "ageMs": 480052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "Rank by weighting and weakness. Don't split time evenly.",
+          "localId": "57c7ea3e-25c6-38ad-b695-998156beabf0"
+        },
+        {
+          "parent": "57c7ea3e-25c6-38ad-b695-998156beabf0",
+          "image": null,
+          "score": 8,
+          "ageMs": 360052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "Reserve 30 minutes daily to review mistakes so you don't repeat them.",
+          "localId": "26b09b07-77e7-3cd8-a3c8-96a0a40526e4"
+        }
+      ],
+      "author": "ec09c99b-4977-3e08-aa04-d6f18a77cca3",
+      "pinRank": null,
+      "title": "Three finals in four days — how would you plan revision?",
+      "body": "Timetable just dropped and three exams are basically stacked together. Not sure what to revise first without half-studying everything.",
+      "category": "Finals",
+      "localId": "e3959a5b-2f96-3ae9-8f03-72fc202784cf"
+    },
+    {
+      "forum": "anu",
+      "image": null,
+      "score": 21,
+      "ageMs": 780052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 12,
+          "ageMs": 660052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "Week 2 is still okay. Email the course convenor and ask whether tutorial records can be caught up.",
+          "localId": "00d2dd4b-eb4d-396a-b251-c62bad89e763"
+        },
+        {
+          "parent": "00d2dd4b-eb4d-396a-b251-c62bad89e763",
+          "image": null,
+          "score": 8,
+          "ageMs": 540052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "Also check the census date so you don't get charged for a course you drop.",
+          "localId": "7437f826-cf97-3370-acd9-af729f2323bf"
+        }
+      ],
+      "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+      "pinRank": null,
+      "title": "Is week 2 too late to swap courses?",
+      "body": "This course workload is much heavier than I expected and I want to swap into another elective. It's already week 2 though, so I'm worried about tutorials and quizzes. Has anyone done this?",
+      "category": "Study",
+      "localId": "ea861cdd-f7d2-3d45-86c9-7a8f125d9cf8"
+    },
+    {
+      "forum": "anu",
+      "image": null,
+      "score": 16,
+      "ageMs": 720052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 600052,
+          "author": "ab92047d-c576-360d-8d24-d7190f960145",
+          "body": "Check the Kambri information desk. Student cards often get handed in there.",
+          "localId": "a4de3b18-353f-34c1-a1a4-146321d4bf0a"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 5,
+          "ageMs": 480052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "I just walked past the lawn and didn't see it, but I'll keep an eye out.",
+          "localId": "b2013287-1492-3dfc-ab68-bfc027fb45e5"
+        }
+      ],
+      "author": "ec09c99b-4977-3e08-aa04-d6f18a77cca3",
+      "pinRank": null,
+      "title": "Has anyone found a student card around Kambri?",
+      "body": "Lost my student card after lunch at Kambri today, probably near the seating area or grass. Initial M. Please let me know if you spotted it.",
+      "category": "Life",
+      "localId": "ec939137-c7b9-385e-a91f-b7ce5ee6144b"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 24,
+      "ageMs": 5280052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 14,
+          "ageMs": 4800052,
+          "author": "ec09c99b-4977-3e08-aa04-d6f18a77cca3",
+          "body": "Draw the diagram before every pointer step. If it's clear on paper you won't mess up in the exam.",
+          "localId": "ea02d58d-9306-3c47-81fc-6949698d66db"
+        },
+        {
+          "parent": "ea02d58d-9306-3c47-81fc-6949698d66db",
+          "image": null,
+          "score": 8,
+          "ageMs": 4500052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "Agreed. Nail the base case first and the rest follows naturally.",
+          "localId": "0629fe79-2896-325b-ae44-f7e92d637428"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 11,
+          "ageMs": 4200052,
+          "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+          "body": "Past papers are on UNSW Teams in the COMP1511 channel.",
+          "localId": "863816f4-ca5a-35e2-9501-619d051e3e9a"
+        }
+      ],
+      "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+      "pinRank": null,
+      "title": "What are the must-know topics for COMP1511 finals?",
+      "body": "Finals are coming and I still can't get my head around linked lists and recursion. Has anyone compiled a cheat sheet? Where can I find past papers?",
+      "category": "Finals",
+      "localId": "edae98a4-dc1e-3c46-bbe8-b9b35c80e1be"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 16,
+      "ageMs": 420052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 8,
+          "ageMs": 300052,
+          "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+          "body": "Double-sided, four slides per page saves a lot and stays readable.",
+          "localId": "c5a6db55-4c2b-34c7-9fa6-5262d995ed5d"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 7,
+          "ageMs": 240052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "Print tutorial questions only, annotate lecture notes digitally.",
+          "localId": "6674912c-59bd-3ba3-8bf7-f37a479e5e4b"
+        }
+      ],
+      "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+      "pinRank": null,
+      "title": "Where is the cheapest place to print lecture slides?",
+      "body": "Some classes are easier on paper, but campus printing feels expensive. Any cheap workflow?",
+      "category": "Study",
+      "localId": "fdd37700-ea63-3082-be52-a228f89d619e"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 16,
+      "ageMs": 4320052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 7,
+          "ageMs": 3900052,
+          "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+          "body": "Interested — I've been working through NLTK this semester, happy to connect.",
+          "localId": "d72ff165-3359-38fc-83a8-7c5edfe388f6"
+        },
+        {
+          "parent": "d72ff165-3359-38fc-83a8-7c5edfe388f6",
+          "image": null,
+          "score": 5,
+          "ageMs": 3600052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "Count me in too — I did a small Twitter sentiment classifier last semester, happy to share the approach.",
+          "localId": "a54358c7-f70e-3d09-bfac-ca37dbbfee4f"
+        }
+      ],
+      "author": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+      "pinRank": null,
+      "title": "Looking for a Data Science project partner – Python required",
+      "body": "Working on a sentiment analysis project for the final and looking for 1-2 people with Python experience — ideally some NLP background. DM or reply here.",
+      "category": "Study",
+      "localId": "03884475-a971-3f07-9d40-9f7849fd92c4"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 15,
+      "ageMs": 3000052,
+      "comments": [
+        {
+          "parent": null,
+          "image": "avatar_um.jpg",
+          "score": 5,
+          "ageMs": 2640052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "I like that direction. It makes the app feel more like a community people would actually keep using.",
+          "localId": "26ddd93e-2c5c-38b2-9d47-9d6265256bb2"
+        },
+        {
+          "parent": "26ddd93e-2c5c-38b2-9d47-9d6265256bb2",
+          "image": null,
+          "score": 3,
+          "ageMs": 2460052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "It also gives us another good place to show nested replies without making every thread explicitly about moderation.",
+          "localId": "f1f4ec27-692b-39ea-9c0c-f8a24e5e7fcd"
+        },
+        {
+          "parent": "f1f4ec27-692b-39ea-9c0c-f8a24e5e7fcd",
+          "image": null,
+          "score": 2,
+          "ageMs": 2340052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "One more third-floor reply makes deep discussion feel natural even in the more casual forum.",
+          "localId": "d0970c7d-1e0e-3199-af8c-47ce7c7f0161"
+        }
+      ],
+      "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+      "pinRank": null,
+      "title": "The UM forum can feel a bit more casual",
+      "body": "It could cover things like campus life, cafe recommendations, and student activity chatter so the four forums do not all feel like clones of the same project board.",
+      "category": "Social",
+      "localId": "045b6726-2320-3f76-936d-28ffc502f9d9"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 19,
+      "ageMs": 4680052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 10,
+          "ageMs": 4200052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "Film club screening Thursday evening at Student Hub — it's free.",
+          "localId": "ebb8d878-7b1e-3e10-8841-3a81e0b66103"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 8,
+          "ageMs": 3780052,
+          "author": "ab92047d-c576-360d-8d24-d7190f960145",
+          "body": "There's a language exchange Friday afternoon on the third floor of the Main Library. Very chill.",
+          "localId": "4aa005ce-257d-34b8-abd9-43ee47d7f6ff"
+        }
+      ],
+      "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+      "pinRank": null,
+      "title": "What's on campus this week worth going to?",
+      "body": "Been stuck in my room for weeks. Anyone know what's on this week? Club events, talks, anything beats staring at the ceiling.",
+      "category": "Social",
+      "localId": "0c3c1a80-7cbd-3c87-8a52-d15895dba18e"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 24,
+      "ageMs": 360052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 12,
+          "ageMs": 240052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "Bring five copies. Mostly it's for your own confidence.",
+          "localId": "7b386a62-7557-3b1e-8f81-25175d8d2a80"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 15,
+          "ageMs": 180052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "Two specific questions matter more than the paper resume.",
+          "localId": "e1b6f002-99e0-345e-b784-cc53fb04bfc2"
+        }
+      ],
+      "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+      "pinRank": null,
+      "title": "Should I bring printed resumes to career fair?",
+      "body": "Everyone seems to apply through QR codes now, but I worry showing up empty-handed looks unprepared.",
+      "category": "Social",
+      "localId": "0ddc6b8e-e65f-3839-8334-00fc912a8d36"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 27,
+      "ageMs": 660052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 16,
+          "ageMs": 480052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "Post clear tasks and deadlines in the group chat, keep screenshots, then email the tutor.",
+          "localId": "6d1709b6-ee73-3d67-ad45-431a32ab0ebf"
+        },
+        {
+          "parent": "6d1709b6-ee73-3d67-ad45-431a32ab0ebf",
+          "image": null,
+          "score": 6,
+          "ageMs": 360052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Exactly. Clear evidence makes it much easier for the tutor to handle.",
+          "localId": "d9902449-f2c9-3731-a8ff-70d470156428"
+        }
+      ],
+      "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+      "pinRank": null,
+      "title": "What do you do when a group member never replies?",
+      "body": "One person in our group hasn't replied on Discord for three days and the deadline is close. Is it too early to tell the tutor?",
+      "category": "Study",
+      "localId": "0e37a942-cc94-316e-bceb-d205835ea2fc"
+    },
+    {
+      "forum": "unsw",
+      "image": "avatar_unsw.jpg",
+      "score": 17,
+      "ageMs": 3480052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 6,
+          "ageMs": 3060052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Agreed. Giving each forum a slightly different tone makes the switch feel more like a real product.",
+          "localId": "349d7e03-445d-3429-9038-81bcd48ac101"
+        },
+        {
+          "parent": null,
+          "image": "avatar_anu.jpg",
+          "score": 4,
+          "ageMs": 2940052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "I will take the first-floor slot here and use this thread as another nesting example.",
+          "localId": "919470cb-768c-3e0a-a276-1a37fcacf9b8"
+        },
+        {
+          "parent": "919470cb-768c-3e0a-a276-1a37fcacf9b8",
+          "image": null,
+          "score": 3,
+          "ageMs": 2820052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "The second-floor reply can go here so the indentation is visible even after switching to UNSW.",
+          "localId": "21b64bd5-d93b-3433-aa34-a4a6762832e3"
+        },
+        {
+          "parent": "21b64bd5-d93b-3433-aa34-a4a6762832e3",
+          "image": null,
+          "score": 2,
+          "ageMs": 2760052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "And a third-floor reply keeps ANU from being the only forum with deeper comments.",
+          "localId": "9c6e8817-a304-3b5e-9328-e1e1a62462ed"
+        }
+      ],
+      "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+      "pinRank": null,
+      "title": "What should the UNSW forum open with?",
+      "body": "If the goal is to prove multi-forum switching, I think a few lightweight posts about coursework and student clubs are enough. Every forum does not need the same content density.",
+      "category": "Social",
+      "localId": "0f7e2a5c-e36d-322f-a460-118b91a03f85"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 11,
+      "ageMs": 2040052,
+      "comments": [],
+      "author": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+      "pinRank": null,
+      "title": "If we extend the backend later, forum ownership should move into the model",
+      "body": "The demo layer already supports forum switching, but if we later add persistence or real multi-forum queries, the forum field should live directly in the Post model.",
+      "category": "Study",
+      "localId": "115b1545-84b3-31f7-a083-91419503b904"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 21,
+      "ageMs": 2340052,
+      "comments": [],
+      "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+      "pinRank": null,
+      "title": "Short moderator flows matter more than flashy UI",
+      "body": "I care most about how quickly a moderator can move from seeing a reported comment to opening the thread and taking action. The visuals can keep improving, but the flow has to stay tight.",
+      "category": "Study",
+      "localId": "1168b896-e69d-3414-82b9-916048f56c8e"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 20,
+      "ageMs": 480052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 11,
+          "ageMs": 360052,
+          "author": "ab92047d-c576-360d-8d24-d7190f960145",
+          "body": "Prep breakfast the night before. One less decision in the morning helps a lot.",
+          "localId": "47b83c33-19d8-3bc1-93f1-23aef5a877e4"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 13,
+          "ageMs": 240052,
+          "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+          "body": "Sit in the front row. Shame is surprisingly effective.",
+          "localId": "f6b45f5c-8597-3217-b952-8e813d7c062c"
+        }
+      ],
+      "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+      "pinRank": null,
+      "title": "How do you stay awake in 8am lectures?",
+      "body": "I've zoned out halfway through lecture two weeks in a row. Coffee isn't saving me. Any realistic tips?",
+      "category": "Life",
+      "localId": "1721eb27-8a90-3996-a30f-0c0f2f19db29"
+    },
+    {
+      "forum": "anu",
+      "image": null,
+      "score": 25,
+      "ageMs": 600052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 11,
+          "ageMs": 420052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "I can help with design system and copy, but need Sunday night free for revision.",
+          "localId": "cdd36f9c-ba82-3432-95c0-99347265efb2"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 7,
+          "ageMs": 360052,
+          "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+          "body": "I can also help with a few pitch deck slides if needed.",
+          "localId": "d66101d9-7d2c-35f1-91f9-c56a6195a75d"
+        }
+      ],
+      "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+      "pinRank": null,
+      "title": "Weekend hackathon team needs one UI person",
+      "body": "We have two backend people and one data person, but need someone who can make the demo UI feel coherent. No need to be elite, just willing to build through the weekend.",
+      "category": "Social",
+      "localId": "17a8f5b4-bd3e-3ac3-8eef-485ede592f16"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 21,
+      "ageMs": 360052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 12,
+          "ageMs": 240052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "Frame it around your sleep, then agree on quiet hours together.",
+          "localId": "d906f384-7209-3bec-9934-ef5ada592441"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 13,
+          "ageMs": 180052,
+          "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+          "body": "Text to talk during the day. Don't explode at 1am.",
+          "localId": "c3cf9684-fe10-32d1-8997-74387ab7de90"
+        }
+      ],
+      "author": "ec09c99b-4977-3e08-aa04-d6f18a77cca3",
+      "pinRank": null,
+      "title": "How do you talk to a roommate who cooks at 1am?",
+      "body": "I don't want a fight, but the pan noise every night is wrecking my sleep. How do I raise it without making things weird?",
+      "category": "Life",
+      "localId": "18b45deb-a4fc-35f9-b4c3-44a094c8da57"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 28,
+      "ageMs": 3480052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 15,
+          "ageMs": 3000052,
+          "author": "ec09c99b-4977-3e08-aa04-d6f18a77cca3",
+          "body": "I charge my phone across the room. Physical distance actually works.",
+          "localId": "7d68f9e6-f259-3fd7-93b8-5a2f5b9e7142"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 12,
+          "ageMs": 2640052,
+          "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+          "body": "Pomodoro method — 25 minutes focus, 5 minute break. Sounds dumb but my output tripled.",
+          "localId": "5a1f8d5b-94f9-3629-87a5-046db5fbc5b4"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 2280052,
+          "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+          "body": "Break tasks into tiny chunks and allow one episode per chunk completed. Weirdly motivating.",
+          "localId": "1d2d89a8-e2c8-38bf-b9b8-5aa0c6d5fe87"
+        }
+      ],
+      "author": "34882866-bf56-358d-a025-75f684f96dab",
+      "pinRank": null,
+      "title": "How do you stay productive in the dorms? I always end up on my phone",
+      "body": "Dorm room is too comfy to study in, library closes early. How does anyone get anything done? Looking for real tactics not just 'put your phone away'.",
+      "category": "Study",
+      "localId": "1a1c3e77-d73e-30c1-8636-3dfbb8800832"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 20,
+      "ageMs": 1920052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 11,
+          "ageMs": 1620052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Check whether their Instagram has real event photos from the last three months.",
+          "localId": "9a64ea25-3ea8-30d4-92c9-be9e1d1f3f4e"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 1500052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "Join the Discord first. Dead societies are obvious immediately.",
+          "localId": "6d305487-79dd-3cce-97ec-4a7d56522df4"
+        }
+      ],
+      "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+      "pinRank": null,
+      "title": "Too many society stalls — how do you pick without wasting time?",
+      "body": "Walked through O-Week and every society claims to be super active. Any way to tell which ones actually run events?",
+      "category": "Social",
+      "localId": "2161fd82-0e39-3a49-b80f-222da1af65bf"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 27,
+      "ageMs": 1800052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 13,
+          "ageMs": 1440052,
+          "author": "ec09c99b-4977-3e08-aa04-d6f18a77cca3",
+          "body": "The main road is usually fine because there are people around. Avoid the side streets.",
+          "localId": "dc1cee8b-39e1-3abf-9b21-873ca7481e7e"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 10,
+          "ageMs": 1260052,
+          "author": "34882866-bf56-358d-a025-75f684f96dab",
+          "body": "After 10pm I take the bus to a closer stop. Less stress.",
+          "localId": "8877166a-aba9-3a80-9932-06137a81b9a8"
+        }
+      ],
+      "author": "ab92047d-c576-360d-8d24-d7190f960145",
+      "pinRank": null,
+      "title": "Is the walk from Redfern to campus safe at night?",
+      "body": "My classes finish late this semester. How does the Redfern walk feel at night, and is there a better route?",
+      "category": "Life",
+      "localId": "235bdafc-abe5-3d23-aa29-45bac4e40ecc"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 25,
+      "ageMs": 2160052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 16,
+          "ageMs": 1680052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Get someone to review your resume before the next batch. One revision doubled my callback rate.",
+          "localId": "8b84db57-7ee2-3c9d-9b97-f55a788ef56b"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 13,
+          "ageMs": 1320052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "LinkedIn referrals beat cold applications. Try searching for UM alumni at the companies you want.",
+          "localId": "c57f7426-e5ac-3606-b631-441bf9243f8a"
+        }
+      ],
+      "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+      "pinRank": null,
+      "title": "Is it this hard to get a commerce internship for everyone or just me?",
+      "body": "Applied to over 15 internships and only heard back from two. Don't know if it's my resume or the market. Anyone had success recently?",
+      "category": "Career",
+      "localId": "27d9c678-5694-300c-8e93-aea65d150056"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 31,
+      "ageMs": 2280052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 18,
+          "ageMs": 1920052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Write tomorrow's tasks down, put the phone away. Usually asleep within 20 minutes.",
+          "localId": "82662943-bcad-3f71-8649-669350f743f7"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 14,
+          "ageMs": 1680052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "I make a checklist of what I've covered and tick things off. The sense of progress kills the anxiety.",
+          "localId": "399da906-e95c-3d2a-ac73-77cb48f57a49"
+        }
+      ],
+      "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+      "pinRank": null,
+      "title": "Can't sleep before finals — anyone else or just me?",
+      "body": "For the last two weeks before every finals period I can't switch off. Tried meditation but it's hit or miss. What actually works for you?",
+      "category": "Life",
+      "localId": "2eba2cfc-7fae-34b0-85a1-d98a80136dc3"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 19,
+      "ageMs": 420052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 10,
+          "ageMs": 300052,
+          "author": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+          "body": "Upper levels are much quieter, but seats go fast after lunch.",
+          "localId": "81b9ca29-22f1-315b-bbd1-7801957f8793"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 240052,
+          "author": "ab92047d-c576-360d-8d24-d7190f960145",
+          "body": "Noise-cancelling headphones plus Law Library is a reliable combo.",
+          "localId": "fa10c22c-fa2c-3c31-be01-52a8d89c16f2"
+        }
+      ],
+      "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+      "pinRank": null,
+      "title": "Which Fisher Library level is the quietest?",
+      "body": "Need somewhere to write an essay for a few hours without group chatter cutting through every ten minutes.",
+      "category": "Study",
+      "localId": "2f7c5cfe-a242-3159-a2a7-65cfa6792a2b"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 22,
+      "ageMs": 3300052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 12,
+          "ageMs": 2880052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "The sushi rolls across from Carslaw are great value — $10 and actually filling.",
+          "localId": "c0eb6313-edde-348c-9759-2500393970c6"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 16,
+          "ageMs": 2520052,
+          "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+          "body": "I'm surviving exclusively on Fisher Library vending machines at this point…",
+          "localId": "0b0df798-f850-3136-8505-cfefeae99601"
+        }
+      ],
+      "author": "ec09c99b-4977-3e08-aa04-d6f18a77cca3",
+      "pinRank": null,
+      "title": "Is Wentworth getting worse or am I just broke now",
+      "body": "I swear $12 used to feel like a feast. Now $16 gets me half the plate. Anyone know a better spot near Carslaw?",
+      "category": "Life",
+      "localId": "2ff4fe4c-d20e-38b6-b1ee-de5c134c0259"
+    },
+    {
+      "forum": "anu",
+      "image": null,
+      "score": 22,
+      "ageMs": 360052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 14,
+          "ageMs": 240052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "Start with your goal, then evidence, then what the money would concretely change.",
+          "localId": "b529b92d-27de-3314-b252-226ecdbcfac4"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 11,
+          "ageMs": 180052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Don't list everything. Pick two moments that prove the point.",
+          "localId": "c1cabde9-91cb-3d0e-8b92-c09ccae76ab3"
+        }
+      ],
+      "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+      "pinRank": null,
+      "title": "How do you write a scholarship personal statement?",
+      "body": "The limit is 500 words and I don't know whether to focus on grades, societies, or background. Any structure that works?",
+      "category": "Study",
+      "localId": "3b4c637f-5691-3084-a814-d32305652ce8"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 23,
+      "ageMs": 720052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 13,
+          "ageMs": 540052,
+          "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+          "body": "Before 8:30 is pretty safe. After 10 it's pure luck.",
+          "localId": "364c5677-5772-3922-af7b-fc8c0ef79afd"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 8,
+          "ageMs": 420052,
+          "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+          "body": "Law Library is quieter, but there aren't many power outlets.",
+          "localId": "31ee104a-43ad-364a-841c-a34540c75f3e"
+        }
+      ],
+      "author": "ab92047d-c576-360d-8d24-d7190f960145",
+      "pinRank": null,
+      "title": "What time do you need to reach Main Library to get a seat?",
+      "body": "Every time I arrive at 10 this week it's already packed. During exam season, when do people usually get seats? Any less intense floors?",
+      "category": "Finals",
+      "localId": "57c69a68-99e9-3535-a11c-833b4828598f"
+    },
+    {
+      "forum": "anu",
+      "image": null,
+      "score": 19,
+      "ageMs": 2940052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 6,
+          "ageMs": 2520052,
+          "author": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+          "body": "Two levels should be enough. Going deeper will start to squeeze the mobile layout.",
+          "localId": "ab9d0da8-4fb3-3cca-9849-6cfe6becd383"
+        },
+        {
+          "parent": "ab9d0da8-4fb3-3cca-9849-6cfe6becd383",
+          "image": "avatar_usyd.jpg",
+          "score": 8,
+          "ageMs": 2280052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Then the second level should still keep vote, reply, and report entry points so the interaction does not disappear with indentation.",
+          "localId": "098af11f-ae31-306e-a6c1-10cf3827ace7"
+        },
+        {
+          "parent": "098af11f-ae31-306e-a6c1-10cf3827ace7",
+          "image": null,
+          "score": 5,
+          "ageMs": 1980052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "Exactly. The important part is that the structure is clear; the reply composer does not need to be fully wired yet.",
+          "localId": "69939616-0601-3c5a-86ff-b26f20bbbc10"
+        },
+        {
+          "parent": "ab9d0da8-4fb3-3cca-9849-6cfe6becd383",
+          "image": null,
+          "score": 3,
+          "ageMs": 1860052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "I will add another second-floor branch so the thread does not look like only a single chain.",
+          "localId": "a8fafa51-5b99-3cef-b617-69a142a01fdd"
+        }
+      ],
+      "author": "34882866-bf56-358d-a025-75f684f96dab",
+      "pinRank": 1,
+      "title": "How deep should comment nesting go for the demo?",
+      "body": "I think we need at least two visible reply levels. As long as the indentation, avatars, and bold usernames read clearly, the thread structure will be obvious in the demo.",
+      "category": "Finals",
+      "localId": "59f08b5b-b7c0-35cd-8003-b31c4e110372"
+    },
+    {
+      "forum": "anu",
+      "image": null,
+      "score": 37,
+      "ageMs": 1080052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 12,
+          "ageMs": 900052,
+          "author": "ec09c99b-4977-3e08-aa04-d6f18a77cca3",
+          "body": "Same. Digital makes one tiny wiring mistake feel like a personal attack.",
+          "localId": "5910f16c-3ab0-33c2-bde7-e5fd0540bc0b"
+        },
+        {
+          "parent": "5910f16c-3ab0-33c2-bde7-e5fd0540bc0b",
+          "image": null,
+          "score": 6,
+          "ageMs": 780052,
+          "author": "ab92047d-c576-360d-8d24-d7190f960145",
+          "body": "The moment the PC stops updating, my soul leaves my body.",
+          "localId": "5e629c93-d41a-3afa-8648-b721020517ee"
+        },
+        {
+          "parent": "5e629c93-d41a-3afa-8648-b721020517ee",
+          "image": null,
+          "score": 4,
+          "ageMs": 720052,
+          "author": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+          "body": "I swear half the lab is just learning which wire I forgot to connect.",
+          "localId": "efd7acaa-8dcc-36fc-9142-70572d50c0b1"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 660052,
+          "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+          "body": "Lowkey though, once the datapath clicks, it is actually kind of satisfying.",
+          "localId": "7e7da2f7-1b21-3e2c-ad97-c29b5b87fe19"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 15,
+          "ageMs": 540052,
+          "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+          "body": "The hardest part is pretending I did not spend three hours debugging a single mux.",
+          "localId": "bd862715-91db-38c7-9bd4-9a60fd46f134"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 5,
+          "ageMs": 480052,
+          "author": "5ab894ce-7310-3408-8fd7-09086b78857a",
+          "body": "Your datapath sketch from yesterday saved me.",
+          "localId": "775f0408-44ed-3886-9ce2-a447e15c6794"
+        }
+      ],
+      "author": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+      "pinRank": null,
+      "title": "COMP2300 is actually destroying me",
+      "body": "I knew computer organisation would be hard, but COMP2300 feels like a full-time job. Every lab starts with me thinking I understand the circuit, and ends with me questioning whether I understand binary at all. The QuAC CPU is cool, but debugging Digital at 2am is a different kind of pain.",
+      "category": "Study",
+      "localId": "5db6c767-ba52-3b00-a270-fda020b74c4b"
+    },
+    {
+      "forum": "usyd",
+      "image": null,
+      "score": 24,
+      "ageMs": 1620052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 14,
+          "ageMs": 1200052,
+          "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+          "body": "Ask the tutor one question after class. That usually counts as solid participation.",
+          "localId": "234400f4-d2ab-3311-973b-e82346cfc1b7"
+        },
+        {
+          "parent": "234400f4-d2ab-3311-973b-e82346cfc1b7",
+          "image": null,
+          "score": 6,
+          "ageMs": 1080052,
+          "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+          "body": "Same. Much less stressful than speaking in front of everyone.",
+          "localId": "14f2d520-fc36-39fe-ba53-9c9605913ef7"
+        }
+      ],
+      "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+      "pinRank": null,
+      "title": "Will staying quiet in tutorials hurt participation marks?",
+      "body": "I attend every tutorial and do the prep, but I don't really speak up. Do tutors count attendance and group work, or do I need to answer out loud?",
+      "category": "Study",
+      "localId": "5fc10b5d-fdba-3035-8b88-c410e3841dd7"
+    },
+    {
+      "forum": "um",
+      "image": null,
+      "score": 23,
+      "ageMs": 360052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 11,
+          "ageMs": 240052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "I can help with user flows and testing, plus a bit of code.",
+          "localId": "05024223-3d48-3b04-9205-c02d84ed49c4"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 10,
+          "ageMs": 180052,
+          "author": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+          "body": "Firebase would make the prototype pretty quick.",
+          "localId": "30679a16-b3e8-32be-8a40-6f396393ffd3"
+        }
+      ],
+      "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+      "pinRank": null,
+      "title": "Anyone want to build a small AI side project?",
+      "body": "I want to build a small tool that organizes course discussions and todos. Nothing too formal, mostly practice and portfolio.",
+      "category": "AI",
+      "localId": "615d4b7f-2694-3d4d-888c-a21b27acd236"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 9,
+      "ageMs": 2700052,
+      "comments": [],
+      "author": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+      "pinRank": null,
+      "title": "Should we unify the UI wording before next week's demo?",
+      "body": "We currently mix labels like post, comment, and reply across screens. It would be good to unify them before the live demo so the wording feels as polished as the UI.",
+      "category": "Study",
+      "localId": "62f04d92-8f95-31a3-b0e2-e5863f48fd1c"
+    },
+    {
+      "forum": "unsw",
+      "image": null,
+      "score": 21,
+      "ageMs": 2400052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 13,
+          "ageMs": 2100052,
+          "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+          "body": "Second year is fine. Plenty of companies don't care as long as your GitHub isn't empty.",
+          "localId": "b9fcffa6-9c74-3707-80b0-f4fa1f086e48"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 10,
+          "ageMs": 1800052,
+          "author": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+          "body": "Startups are more flexible about year level. Build experience there and use it to pitch the big names.",
+          "localId": "9ae40fcd-88a7-319f-a3f2-fa95875b6b9e"
+        }
+      ],
+      "author": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+      "pinRank": null,
+      "title": "Can second-year students land internships or is that a third-year thing?",
+      "body": "Most JDs say penultimate student. Wondering if there's any point applying in second year or should I just build personal projects for now?",
+      "category": "Career",
+      "localId": "6e163b15-0bb9-385a-ad2c-e48091aef575"
+    },
+    {
+      "forum": "anu",
+      "image": null,
+      "score": 18,
+      "ageMs": 420052,
+      "comments": [
+        {
+          "parent": null,
+          "image": null,
+          "score": 9,
+          "ageMs": 300052,
+          "author": "ab92047d-c576-360d-8d24-d7190f960145",
+          "body": "After 8:30 is much better. The weights area opens up.",
+          "localId": "584fc29c-abf6-3026-a4c1-ce281ef10929"
+        },
+        {
+          "parent": null,
+          "image": null,
+          "score": 8,
+          "ageMs": 240052,
+          "author": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+          "body": "7am is also good, assuming you can actually wake up.",
+          "localId": "5d91893c-68a8-34c9-99d4-04fa2fed9394"
+        }
+      ],
+      "author": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+      "pinRank": null,
+      "title": "When does the ANU gym get quieter at night?",
+      "body": "Went at 6pm and every machine had a queue. Looking for a quieter window that still doesn't mean getting home too late.",
+      "category": "Life",
+      "localId": "74a9786e-8173-3c30-8878-86de73de70f0"
+    }
+  ],
+  "users": [
+    {
+      "displayName": "anu_sleep_deprived",
+      "localId": "ec09c99b-4977-3e08-aa04-d6f18a77cca3",
+      "username": "anu_sleep_deprived"
+    },
+    {
+      "displayName": "Campus Buddy",
+      "localId": "b36f89f7-350e-3f45-b77e-875b89dd1ee4",
+      "username": "campusviewer"
+    },
+    {
+      "displayName": "comp_survivor",
+      "localId": "e138defa-bac1-3a24-9709-cea3fbff89b4",
+      "username": "comp_survivor"
+    },
+    {
+      "displayName": "deadline_victim",
+      "localId": "9e602fe4-0d72-3bf5-bff2-d9cf5ddca56e",
+      "username": "deadline_victim"
+    },
+    {
+      "displayName": "lab_partner",
+      "localId": "ab92047d-c576-360d-8d24-d7190f960145",
+      "username": "lab_partner"
+    },
+    {
+      "displayName": "latecoder",
+      "localId": "4c37fc42-8919-3bf4-b0be-04de9093538f",
+      "username": "latecoder"
+    },
+    {
+      "displayName": "modmentor",
+      "localId": "338f9fc8-f8e8-38a7-ab27-609bba9ced04",
+      "username": "modmentor"
+    },
+    {
+      "displayName": "quac_enjoyer",
+      "localId": "5ab894ce-7310-3408-8fd7-09086b78857a",
+      "username": "quac_enjoyer"
+    },
+    {
+      "displayName": "studybuddy",
+      "localId": "6e1d9ad1-b64d-3159-9aa3-06b71ebcb05a",
+      "username": "studybuddy"
+    },
+    {
+      "displayName": "treesage",
+      "localId": "34882866-bf56-358d-a025-75f684f96dab",
+      "username": "treesage"
+    },
+    {
+      "displayName": "uxpilot",
+      "localId": "15f3610b-56ad-3fdc-a89a-27d3f15fc95f",
+      "username": "uxpilot"
+    }
+  ],
+  "markets": [
+    {
+      "forum": "anu",
+      "candles": [
+        [
+          126,
+          138,
+          120,
+          132
+        ],
+        [
+          132,
+          148,
+          129,
+          144
+        ],
+        [
+          144,
+          153,
+          138,
+          149
+        ],
+        [
+          149,
+          161,
+          145,
+          158
+        ],
+        [
+          158,
+          167,
+          154,
+          162
+        ],
+        [
+          162,
+          170,
+          159,
+          164
+        ]
+      ]
+    },
+    {
+      "forum": "unsw",
+      "candles": [
+        [
+          184,
+          196,
+          180,
+          192
+        ],
+        [
+          192,
+          208,
+          189,
+          205
+        ],
+        [
+          205,
+          226,
+          201,
+          221
+        ],
+        [
+          221,
+          234,
+          214,
+          229
+        ],
+        [
+          229,
+          233,
+          218,
+          225
+        ],
+        [
+          225,
+          228,
+          206,
+          211
+        ]
+      ]
+    },
+    {
+      "forum": "usyd",
+      "candles": [
+        [
+          154,
+          166,
+          151,
+          161
+        ],
+        [
+          161,
+          170,
+          158,
+          167
+        ],
+        [
+          167,
+          171,
+          160,
+          164
+        ],
+        [
+          164,
+          176,
+          162,
+          173
+        ],
+        [
+          173,
+          182,
+          171,
+          180
+        ],
+        [
+          180,
+          191,
+          178,
+          188
+        ]
+      ]
+    },
+    {
+      "forum": "um",
+      "candles": [
+        [
+          112,
+          124,
+          109,
+          118
+        ],
+        [
+          118,
+          129,
+          116,
+          126
+        ],
+        [
+          126,
+          132,
+          121,
+          123
+        ],
+        [
+          123,
+          136,
+          121,
+          131
+        ],
+        [
+          131,
+          141,
+          129,
+          137
+        ],
+        [
+          137,
+          148,
+          135,
+          143
+        ]
+      ]
+    }
+  ],
+  "leaderboard": [
+    {
+      "username": "KoalaQuant",
+      "forum": "unsw",
+      "assets": 1488,
+      "activeDays": 9
+    },
+    {
+      "username": "LateNightLong",
+      "forum": "usyd",
+      "assets": 1412,
+      "activeDays": 7
+    },
+    {
+      "username": "DuckLiquidity",
+      "forum": "anu",
+      "assets": 1368,
+      "activeDays": 6
+    },
+    {
+      "username": "StudioBreakout",
+      "forum": "um",
+      "assets": 1337,
+      "activeDays": 5
+    },
+    {
+      "username": "MidtermWhale",
+      "forum": "unsw",
+      "assets": 1294,
+      "activeDays": 4
+    },
+    {
+      "username": "CafeGamma",
+      "forum": "usyd",
+      "assets": 1226,
+      "activeDays": 4
+    },
+    {
+      "username": "QuietAccumulator",
+      "forum": "anu",
+      "assets": 1162,
+      "activeDays": 3
+    },
+    {
+      "username": "LanewayScalper",
+      "forum": "um",
+      "assets": 1114,
+      "activeDays": 2
+    }
+  ],
+  "provenance": "Original in-app Demo fixture; imported scenario data, not real-world users or financial returns."
+}

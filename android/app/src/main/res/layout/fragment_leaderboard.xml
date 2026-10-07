@@ -20,6 +20,19 @@
             android:textStyle="bold" />
 
 
+        <TextView
+            android:id="@+id/textLeaderboardStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/ink_secondary"
+            android:visibility="gone" />
+        <Button
+            android:id="@+id/buttonLeaderboardRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/feed_retry"
+            android:visibility="gone" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

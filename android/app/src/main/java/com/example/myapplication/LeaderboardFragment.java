@@ -27,6 +27,8 @@ public class LeaderboardFragment extends Fragment implements RefreshablePage {
     private TextView textLeaderboardReturnValue;
     private TextView textLeaderboardUserPnl;
     private LinearLayout layoutLeaderboardEntries;
+    private TextView syncStatus;
+    private android.widget.Button syncRetry;
     private final Handler leaderboardTickerHandler = new Handler(Looper.getMainLooper());
     private final Runnable leaderboardTicker = new Runnable() {
         @Override
@@ -55,12 +57,19 @@ public class LeaderboardFragment extends Fragment implements RefreshablePage {
         textLeaderboardReturnValue = view.findViewById(R.id.textLeaderboardReturnValue);
         textLeaderboardUserPnl = view.findViewById(R.id.textLeaderboardUserPnl);
         layoutLeaderboardEntries = view.findViewById(R.id.layoutLeaderboardEntries);
+        syncStatus=view.findViewById(R.id.textLeaderboardStatus);
+        syncRetry=view.findViewById(R.id.buttonLeaderboardRetry);
+        syncRetry.setOnClickListener(v -> {
+            if(ServerFeatures.marketReady())ServerFeatures.loadBoard(false);
+            else ServerFeatures.refreshMarket(requireContext(),true);
+        });
         refreshContent();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        ServerFeatures.init(requireContext()); ServerFeatures.observe(this,this::refreshContent);
         MarketPortfolioStore.advanceMarketTick(requireContext());
         refreshContent();
         startTicker();
@@ -68,24 +77,24 @@ public class LeaderboardFragment extends Fragment implements RefreshablePage {
 
     @Override
     public void onPause() {
+        ServerFeatures.remove(this);
         super.onPause();
         stopTicker();
     }
 
     @Override
     public void refreshContent() {
-        if (!isAdded() || getView() == null) {
+        if (!isResumed() || !isAdded() || getView() == null) {
             return;
         }
 
         MarketPortfolioStore.PortfolioSnapshot snapshot = MarketPortfolioStore.getPortfolio(requireContext());
-        double returnPercent = ((double) (snapshot.getTotalAssets() - MarketPortfolioStore.DAILY_FLOOR_TOKENS) * 100d)
-                / MarketPortfolioStore.DAILY_FLOOR_TOKENS;
+        double returnPercent = MarketPortfolioStore.getReturnPercent();
 
-        textLeaderboardCashValue.setText(getString(R.string.market_tokens_format, snapshot.getCashBalance()));
-        textLeaderboardAssetsValue.setText(getString(R.string.market_tokens_format, snapshot.getTotalAssets()));
-        textLeaderboardReturnValue.setText(String.format(Locale.getDefault(), "%+.1f%%", returnPercent));
-        textLeaderboardReturnValue.setTextColor(resolvePnlColor(snapshot.getTotalAssets() - MarketPortfolioStore.DAILY_FLOOR_TOKENS));
+        textLeaderboardCashValue.setText(ServerFeatures.marketReady()?getString(R.string.market_tokens_format, snapshot.getCashBalance()):"—");
+        textLeaderboardAssetsValue.setText(ServerFeatures.marketReady()?getString(R.string.market_tokens_format, snapshot.getTotalAssets()):"—");
+        textLeaderboardReturnValue.setText(ServerFeatures.marketReady()?String.format(Locale.getDefault(), "%+.1f%%", returnPercent):"—");
+        textLeaderboardReturnValue.setTextColor(resolvePnlColor((int)Math.signum(returnPercent)));
         textLeaderboardUserPnl.setText(getString(
                 R.string.leaderboard_user_pnl,
                 formatSignedTokens(snapshot.getOpenPnl()),
@@ -93,6 +102,10 @@ public class LeaderboardFragment extends Fragment implements RefreshablePage {
         ));
         textLeaderboardUserPnl.setTextColor(resolvePnlColor(snapshot.getOpenPnl()));
 
+        String error=ServerFeatures.boardError()!=null?ServerFeatures.boardError():ServerFeatures.marketError();
+        syncStatus.setVisibility(error!=null||!ServerFeatures.boardReady()?View.VISIBLE:View.GONE);
+        syncStatus.setText(error!=null?getString(R.string.feed_sync_failed):getString(R.string.feed_sync_loading));
+        syncRetry.setVisibility(error!=null?View.VISIBLE:View.GONE);
         renderBoard(CampusMarketRepository.getLeaderboard());
     }
 
@@ -130,25 +143,17 @@ public class LeaderboardFragment extends Fragment implements RefreshablePage {
                     AppData.getForumLabel(requireContext(), entry.getForumKey())
             ));
             int displayAssets = getDisplayAssets(entry);
-            int displayProfit = displayAssets - MarketPortfolioStore.DAILY_FLOOR_TOKENS;
-            double displayReturnPercent = ((double) displayProfit * 100d) / MarketPortfolioStore.DAILY_FLOOR_TOKENS;
+            int displayProfit = entry.getProfit();
+            double displayReturnPercent = entry.getReturnPercent();
             profit.setText(String.format(Locale.getDefault(), "%+.1f%%", displayReturnPercent));
             profit.setTextColor(resolvePnlColor(displayProfit));
             assets.setText(getString(R.string.leaderboard_assets_format, displayAssets));
             layoutLeaderboardEntries.addView(item);
         }
+        if (ServerFeatures.boardMore()) { android.widget.Button more=new android.widget.Button(requireContext());more.setText(R.string.feed_load_more);more.setEnabled(!ServerFeatures.boardBusy());more.setOnClickListener(v->{more.setEnabled(false);ServerFeatures.loadBoard(true);});layoutLeaderboardEntries.addView(more); }
     }
 
-    private int getDisplayAssets(CampusMarketRepository.LeaderboardEntry entry) {
-        CampusMarketRepository.SchoolMarket market = CampusMarketRepository.getMarket(entry.getForumKey());
-        int livePrice = MarketPortfolioStore.getLivePrice(requireContext(), entry.getForumKey(), market.getCurrentPrice());
-        int liveDelta = livePrice - market.getCurrentPrice();
-        int multiplier = 8 + entry.getStreakDays();
-        return Math.max(
-                MarketPortfolioStore.DAILY_FLOOR_TOKENS,
-                entry.getTotalAssets() + (liveDelta * multiplier)
-        );
-    }
+    private int getDisplayAssets(CampusMarketRepository.LeaderboardEntry entry) { return entry.getTotalAssets(); }
 
     private int resolveRankColor(int rank) {
         if (rank == 1) {

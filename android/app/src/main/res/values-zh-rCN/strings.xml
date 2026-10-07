@@ -37,7 +37,7 @@
     <string name="search_channel_hint">搜索 %1$s 中的帖子</string>
     <string name="search_empty_title">没有找到相关帖子</string>
     <string name="search_empty_body">试试换个关键词</string>
-    <string name="search_ai_answer_title">AI 整理</string>
+    <string name="search_ai_answer_title">搜索结果摘录</string>
     <string name="search_ai_answer_body">这个搜索看起来像在问 %1$s 里的一个问题。当前先做本地演示版：我会优先帮你筛出相关帖子，并建议先看课程代码匹配、点赞较高的回复和最相关的帖子详情。搜索：%2$s</string>
 
     <string name="settings_title">设置</string>
@@ -51,20 +51,24 @@
     <string name="backend_settings_title">审核后端</string>
     <string name="backend_enabled">使用在线审核服务</string>
     <string name="backend_url_hint">后端地址</string>
-    <string name="backend_admin_username_hint">管理员用户名（用于人工待审核）</string>
-    <string name="backend_admin_password_hint">管理员密码</string>
-    <string name="backend_password_session_note">管理员密码只保留在本次 App 进程中，不会写入设备存储。</string>
     <string name="backend_status_checking">正在检查审核服务…</string>
     <string name="backend_status_offline">离线演示模式——举报只保留在本机，不会调用 LLM。</string>
     <string name="backend_status_llm">在线 • LLM 已启用：%1$s</string>
     <string name="backend_status_rules">在线 • 仅规则引擎：%1$s</string>
     <string name="backend_status_unreachable">审核服务不可用：%1$s</string>
+    <string name="appeal_title">申诉审核决定</string>
+    <string name="appeal_reason_hint">说明为什么需要重新复核这个决定</string>
+    <string name="appeal_reason_required">必须填写申诉理由。</string>
+    <string name="appeal_submitted">申诉已提交，等待人工复核。</string>
+    <string name="appeal_failed">申诉提交失败：%1$s</string>
 
     <string name="action_save">保存</string>
     <string name="action_cancel">取消</string>
     <string name="action_close">关闭</string>
     <string name="action_clear_search">清空搜索</string>
     <string name="action_send">发送</string>
+    <string name="action_submit">提交</string>
+    <string name="action_appeal">申诉</string>
     <string name="action_back">返回</string>
     <string name="action_open_queue">打开队列</string>
     <string name="action_edit_nickname">编辑昵称</string>
@@ -190,11 +194,10 @@
     <string name="market_held_value_title">持仓市值</string>
     <string name="market_open_pnl_title">浮动盈亏</string>
     <string name="market_positions_title">当前仓位</string>
-    <string name="market_reset_rule">每日补仓规则：如果你的现金低于 %1$d，第二天会补回到 %2$d；高于这个数则不会被重置。</string>
+    <string name="market_reset_rule">每日补仓规则（UTC 00:00 后首次访问）：如果你的现金低于 %1$d，第二天会补回到 %2$d；高于这个数则不会被重置。</string>
     <string name="market_formula_label">热度公式 =</string>
     <string name="market_formula_value">%1$d 发帖 • %2$d 回复 • %3$d 点赞</string>
     <string name="market_index_format">热度指数 %1$d</string>
-    <string name="market_change_today">今日 %1$s</string>
     <string name="market_trigger_label">市场驱动因素</string>
     <string name="market_buy_title">交易仓位</string>
     <string name="market_buy_hint">用虚拟代币交易 %1$s 的热度指数，买入增加敞口，卖出则兑现部分仓位。</string>
@@ -259,13 +262,13 @@
     <string name="leaderboard_your_return">模拟收益率</string>
     <string name="leaderboard_user_pnl">浮动盈亏 %1$s • 持仓市值 %2$s</string>
     <string name="leaderboard_fake_board_title">收益总榜</string>
-    <string name="leaderboard_entry_meta">%1$s • %2$d 日连胜</string>
+    <string name="leaderboard_entry_meta">%1$s • %2$d 个交易日</string>
     <string name="leaderboard_pick_format">主仓方向：%1$s</string>
     <string name="leaderboard_assets_format">资产 %1$d</string>
 
     <string name="you_title">我的</string>
     <string name="you_subtitle">个人资料、语言、主题，以及管理员切换入口都集中放在这里。</string>
-    <string name="you_uid_format">用户编号 · %1$s</string>
+    <string name="you_account_format">账号 · %1$s</string>
     <string name="you_mode_body">把管理员 / 成员切换放在这里，这样论坛侧边栏就可以专门负责社区导航。</string>
 
     <string name="category_all">全部</string>
@@ -275,18 +278,30 @@
     <string name="category_ai">AI</string>
     <string name="category_custom">自定义</string>
     <string name="category_custom_hint">创建主题</string>
-    <string name="profile_meta_format">@%1$s · %2$d 条帖子</string>
+    <string name="profile_meta_format">@%1$s</string>
     <string name="profile_posts_title">发过的帖子</string>
     <string name="profile_no_posts">还没有发帖。</string>
 
     <string name="login_title">欢迎回来</string>
-    <string name="login_subtitle">使用演示账号登录，并选择以普通成员或管理员身份进入。</string>
+    <string name="login_subtitle">Member 使用演示账号；Admin 需要真实服务器管理员账号。</string>
     <string name="login_username_hint">用户名</string>
     <string name="login_password_hint">密码</string>
     <string name="login_member_role">普通成员</string>
     <string name="login_admin_role">管理员</string>
-    <string name="login_demo_hint">演示用户名 1234 · 密码 1234</string>
-    <string name="toast_login_invalid">请输入用户名 1234 和密码 1234。</string>
+    <string name="feed_retry">重试</string>
+    <string name="member_login_required">登录已失效，请重新登录。</string>
+    <string name="member_role_required">普通用户请选择 Member，管理员请选择 Admin。</string>
+    <string name="member_login_hint">使用真实服务器账号登录，帖子、评论和举报将保存到线上数据库。</string>
+    <string name="login_demo_accounts">公开演示账号（真实服务器账号）\n成员：1234 / 密码：1234\n管理员：12345 / 密码：12345</string>
+    <string name="member_register_hint">用户名为 3–50 位字母、数字或下划线；密码为 8–128 位。</string>
+    <string name="member_enter_credentials">请输入用户名和密码。</string>
+    <string name="member_wrong_credentials">用户名或密码错误。</string>
+    <string name="member_register">注册并登录</string>
+    <string name="member_create_account">创建账号</string>
+    <string name="member_have_account">已有账号？返回登录</string>
+    <string name="feed_sync_loading">正在同步论坛帖子…</string>
+    <string name="feed_sync_failed">暂时无法更新，已保留加载过的数据，请重试。</string>
+    <string name="toast_login_invalid">请输入用户名 服务器账号 和密码 服务器账号。</string>
 
     <string name="post_meta_started_by">发起者：%1$s</string>
     <string name="post_summary_admin_hidden">%1$d 条评论 • 其中 %2$d 条对成员隐藏</string>
@@ -309,6 +324,8 @@
 
     <string name="comments_heading">评论区</string>
     <string name="comments_empty">暂时还没有评论，后续可以继续补充回复。</string>
+    <string name="comments_load_more">加载更多评论</string>
+    <string name="comments_loading_more">正在加载评论…</string>
 
     <string name="queue_sort_oldest">按最早举报排序</string>
     <string name="queue_sort_most">按举报数量排序</string>
@@ -320,7 +337,6 @@
     <string name="backend_queue_count">%1$d 个案件待复核</string>
     <string name="backend_queue_empty">当前没有已完成自动分析的案件。新举报可能仍在分析队列中；点击排序按钮可刷新。</string>
     <string name="backend_queue_error">无法加载在线队列：%1$s</string>
-    <string name="backend_queue_configure">请检查后端地址，并在设置中填写管理员凭据。</string>
     <string name="backend_case_engine">%1$s • 建议 %2$s • 置信度 %3$d%%</string>
     <string name="backend_case_meta">%1$d 次举报 • %2$s</string>
     <string name="action_review">复核</string>
@@ -329,7 +345,6 @@
     <string name="backend_decision_hide">隐藏</string>
     <string name="backend_decision_ban">封禁作者</string>
     <string name="backend_decision_delete">删除</string>
-    <string name="backend_error_admin_credentials">请先在设置中填写后端管理员凭据。</string>
     <string name="backend_error_unreachable">无法连接审核服务：%1$s。</string>
     <string name="backend_error_generic">无法连接审核服务。</string>
     <string name="backend_error_malformed">审核服务返回了无法解析的响应。</string>
@@ -340,7 +355,7 @@
     <string name="backend_decision_failed">决定未保存：%1$s</string>
 
     <string name="records_title">AI 已审核记录</string>
-    <string name="settings_moderation_records">AI 已审核记录</string>
+    <string name="settings_moderation_records">已裁决案件 / 申诉</string>
 
     <string name="moderation_action_none">保留</string>
     <string name="moderation_action_hide">已隐藏</string>
@@ -388,4 +403,87 @@
         <item>莓果红</item>
         <item>薰衣草紫</item>
     </string-array>
+    <string name="admin_login_required">管理员会话已结束，请重新登录。</string>
+    <string name="admin_role_required">该账号不是有效的服务器管理员。</string>
+    <string name="admin_login_hint">Admin 使用真实服务器管理员账号。密码不会保存，网页审核工作台也可继续使用。</string>
+    <string name="admin_enter_credentials">请输入管理员用户名和密码。</string>
+    <string name="admin_signing_in">正在登录…</string>
+    <string name="admin_login_wait">正在连接服务器。免费演示服务可能需要唤醒，超时后可重试。</string>
+    <string name="login_server_wait">正在等待服务器（%1$d 秒）。免费实例休眠后可能需要几分钟，正在自动重试，你可以取消。</string>
+    <string name="login_server_ready">服务器已就绪，正在验证账号…</string>
+    <string name="login_server_timeout">服务器响应超时。请检查网络后重试，免费服务也可能仍在启动。</string>
+    <string name="admin_wrong_credentials">管理员用户名或密码错误。</string>
+    <string name="backend_admin_session_note">管理员可在 App 或网页使用真实服务器账号登录。修改 API 地址会退出当前账号。</string>
+    <string name="admin_workspace">审核工作台</string>
+    <string name="admin_case_detail">案件审核</string>
+    <string name="admin_appeal_detail">申诉审核</string>
+    <string name="admin_loading">正在加载服务器数据…</string>
+    <string name="admin_loading_image">正在加载私有图片证据…</string>
+    <string name="admin_saving">正在保存到服务器…</string>
+    <string name="admin_refresh">刷新 / 重试</string>
+    <string name="admin_page">第 %1$d 页 · %2$d 条</string>
+    <string name="admin_empty">此页没有案件。</string>
+    <string name="admin_reports">次举报</string>
+    <string name="admin_previous">上一页</string>
+    <string name="admin_next">下一页</string>
+    <string name="admin_case_status">状态</string>
+    <string name="admin_model_advice">模型 / 规则建议（由管理员决定）</string>
+    <string name="admin_reported_content">举报时的内容</string>
+    <string name="admin_current_content">当前内容</string>
+    <string name="admin_content_changed">作者在举报后修改过内容。</string>
+    <string name="admin_missing_content">内容已不可用。</string>
+    <string name="admin_post_type">帖子</string>
+    <string name="admin_comment_type">评论</string>
+    <string name="admin_appeal_type">申诉</string>
+    <string name="admin_appeal_pending">待处理申诉</string>
+    <string name="admin_appeal_upheld">维持原决定</string>
+    <string name="admin_appeal_overturned">已撤销原决定</string>
+    <string name="admin_image_content">图片内容，点击查看</string>
+    <string name="admin_missing_preview">暂无摘要，点击查看内容</string>
+    <string name="admin_view_content">查看详情</string>
+    <string name="admin_assignment">审核员认领</string>
+    <string name="admin_unassigned">未认领</string>
+    <string name="admin_claim">认领案件</string>
+    <string name="admin_release">释放认领</string>
+    <string name="admin_other_reviewer">此案件已由其他审核员认领，可刷新查看变更。</string>
+    <string name="admin_decision_note">裁决备注（最多 1000 字符）</string>
+    <string name="admin_none">NONE · 不处罚 / 恢复</string>
+    <string name="admin_hide">HIDE · 隐藏内容</string>
+    <string name="admin_delete">DELETE · 删除内容</string>
+    <string name="admin_ban">BAN · 封禁作者</string>
+    <string name="admin_confirm_decision">确认服务器裁决</string>
+    <string name="admin_confirm_action">执行 %1$s？这会修改服务器内容并记录审计。</string>
+    <string name="admin_audit">审计记录</string>
+    <string name="admin_appellant">申诉人</string>
+    <string name="admin_appeal_reason">申诉理由</string>
+    <string name="admin_appeal_response">申诉回复（最多 2000 字符）</string>
+    <string name="admin_open_case">查看关联案件与审计</string>
+    <string name="admin_uphold">维持原裁决</string>
+    <string name="admin_overturn">撤销裁决并恢复</string>
+    <string name="action_confirm">确认</string>
+    <string-array name="admin_queue_filters">
+        <item>待人工审核</item>
+        <item>已裁决案件</item>
+        <item>等待模型分析</item>
+        <item>模型分析中</item>
+        <item>待处理申诉</item>
+        <item>已维持申诉</item>
+        <item>已撤销申诉</item>
+    </string-array>
+    <string name="feed_load_more">加载更多帖子</string>
+    <string name="server_trade_history">交易记录</string>
+    <string name="translation_show_original">机器翻译 · 查看原文</string>
+    <string name="translation_show_translated">显示译文</string>
+    <string name="admin_translation_loading">正在翻译举报内容，暂时显示原文…</string>
+    <string name="admin_translation_note">举报内容的机器译文；裁决前可查看原文核对。</string>
+    <string name="admin_translation_failed">翻译暂不可用，已保留原文；刷新后重试。</string>
+    <string name="chart_period_history">原始历史</string>
+    <string name="market_change_24h">24小时 %1$s</string>
+    <string name="market_chart_history_note">原演示 K 线已存入数据库；交易使用上方实时热度价格。</string>
+    <string name="market_chart_empty">该周期暂时没有行情记录。</string>
+    <string name="market_chart_intraday_note">悉尼时间当天 · %1$d 个记录点；按实际记录价格绘制走势线。</string>
+    <string name="market_chart_period_note">按悉尼日历周期汇总 · %1$d 根 K 线。周 / 月历史随真实记录积累。</string>
+    <string name="notifications_empty">这个分类暂时没有通知。</string>
+    <string name="search_popular_summary">🔥 热议：%1$s</string>
+    <string name="search_top_summary">💬 高赞：%1$s</string>
 </resources>

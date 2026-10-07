@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.graphics.drawable.GradientDrawable;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -31,6 +32,12 @@ import com.google.android.material.button.MaterialButton;
 import java.io.IOException;
 import java.util.Locale;
 
+import backend.BackendConfig;
+import backend.BackendException;
+import backend.BackendForumGateway;
+import backend.BackendMedia;
+import backend.BackendModerationGateway;
+import backend.BackendRuntime;
 import dao.model.Post;
 import dao.model.User;
 
@@ -64,15 +71,23 @@ public class CreatePostActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         UiPreferences.applyAppearance(this);
         super.onCreate(savedInstanceState);
+        if (!UiPreferences.isLoggedIn(this)) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_create_post);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.createPostRoot), (v, insets) -> {
+        android.view.View createRoot=findViewById(R.id.createPostRoot);
+        int paddingLeft=createRoot.getPaddingLeft(),paddingTop=createRoot.getPaddingTop();
+        int paddingRight=createRoot.getPaddingRight(),paddingBottom=createRoot.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(createRoot, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(
-                    v.getPaddingLeft(),
-                    systemBars.top + v.getPaddingTop(),
-                    v.getPaddingRight(),
-                    systemBars.bottom + v.getPaddingBottom()
+                    paddingLeft,
+                    systemBars.top + paddingTop,
+                    paddingRight,
+                    systemBars.bottom + paddingBottom
             );
             return insets;
         });
@@ -93,6 +108,8 @@ public class CreatePostActivity extends AppCompatActivity {
         String nickname = UiPreferences.getProfileNickname(this);
         textCreatePostAvatar.setText(getAvatarLetter(nickname));
         textCreatePostAvatar.setBackground(makeAvatarBackground());
+        AvatarRenderer.display(textCreatePostAvatar,UiPreferences.getAvatarImageUri(this),
+                getAvatarLetter(nickname),UiPreferences.getAvatarColor(this));
 
         styleCategoryChips();
 
@@ -137,7 +154,7 @@ public class CreatePostActivity extends AppCompatActivity {
         String imageUri = AppData.getPostImageUri(editingPost);
         if (imageUri != null && !imageUri.isEmpty()) {
             selectedPostImageUri = Uri.parse(imageUri);
-            imagePostPreview.setImageURI(selectedPostImageUri);
+            RemoteImageLoader.display(imagePostPreview, selectedPostImageUri);
             imagePostPreview.setVisibility(android.view.View.VISIBLE);
         }
 
@@ -253,16 +270,55 @@ public class CreatePostActivity extends AppCompatActivity {
             return;
         }
 
+        String body = inputPostBody.getText().toString().trim();
+        String category = AppData.canonicalPostCategory(getSelectedCategory());
         String imageUri = selectedPostImageUri == null ? null : selectedPostImageUri.toString();
-        if (editingPost != null) {
-            AppData.updatePost(editingPost, title, inputPostBody.getText().toString().trim(),
-                    getSelectedCategory(), imageUri);
-            Toast.makeText(this, getString(R.string.toast_post_updated), Toast.LENGTH_SHORT).show();
-        } else {
-            AppData.createPost(title, inputPostBody.getText().toString().trim(), imageUri, getSelectedCategory());
-            Toast.makeText(this, getString(R.string.toast_post_created), Toast.LENGTH_SHORT).show();
+        BackendRuntime backend = BackendRuntime.from(this);
+        publishOnline(backend, title, body, category, imageUri);
+    }
+
+    private void publishOnline(
+            BackendRuntime backend, String title, String body, String category, String imageUri) {
+        if (AppData.getCurrentUserId() == null) {
+            Toast.makeText(this, R.string.toast_action_failed, Toast.LENGTH_SHORT).show();
+            return;
         }
-        finish();
+        BackendForumGateway.MediaUpload upload;
+        try {
+            boolean retained = editingPost != null && imageUri != null
+                    && imageUri.equals(AppData.getPostImageUri(editingPost));
+            upload = retained ? null : BackendMedia.read(this, selectedPostImageUri);
+        } catch (IOException error) {
+            Toast.makeText(this, R.string.toast_action_failed, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        buttonPublishPost.setEnabled(false);
+        BackendModerationGateway.Callback<BackendForumGateway.PostSnapshot> callback =
+                new BackendModerationGateway.Callback<>() {
+                    @Override public void onSuccess(BackendForumGateway.PostSnapshot snapshot) {
+                        if (isFinishing() || isDestroyed()) return;
+                        Post saved = AppData.upsertRemotePost(snapshot, backend.config().baseUrl());
+                        AppData.setPostCategory(saved, category);
+                        Toast.makeText(CreatePostActivity.this,
+                                editingPost == null ? R.string.toast_post_created : R.string.toast_post_updated,
+                                Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                    @Override public void onError(BackendException error) {
+                        if (isFinishing() || isDestroyed()) return;
+                        if (UiPreferences.handleExpiredSession(CreatePostActivity.this, error)) return;
+                        buttonPublishPost.setEnabled(true);
+                        Toast.makeText(CreatePostActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                };
+        if (editingPost == null) {
+            backend.forum().createPost(
+                    AppData.getCurrentUserId(), AppData.getSelectedForumKey(), title, body, upload, category, callback);
+        } else {
+            backend.forum().updatePost(
+                    AppData.getCurrentUserId(), editingPost.id, title, body, upload,
+                    AppData.getPostImageUri(editingPost), category, callback);
+        }
     }
 
     private String getSelectedCategory() {
@@ -274,22 +330,7 @@ public class CreatePostActivity extends AppCompatActivity {
         return checked == null ? getString(R.string.category_study) : checked.getText().toString();
     }
 
-    private void showMentionDialog() {
-        java.util.ArrayList<User> followed = AppData.getFollowedPeople();
-        if (followed.isEmpty()) {
-            Toast.makeText(this, R.string.toast_follow_someone_first, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String[] labels = new String[followed.size()];
-        for (int i = 0; i < followed.size(); i++) {
-            labels[i] = "@" + followed.get(i).username();
-        }
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_App_MaterialAlertDialog)
-                .setTitle(R.string.action_mention_friend)
-                .setItems(labels, (dialog, which) -> insertMention(labels[which]))
-                .show();
-    }
+    private void showMentionDialog() { ServerFeatures.pickFollowing(this, mention -> insertMention(mention)); }
 
     private void insertMention(String mention) {
         int start = Math.max(inputPostBody.getSelectionStart(), 0);

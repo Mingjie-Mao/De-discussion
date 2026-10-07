@@ -32,6 +32,19 @@ final class BackendMappings {
         return read("local_" + remoteId);
     }
 
+    UUID remoteUser(UUID localId) {
+        return read("user_" + localId);
+    }
+
+    UUID localUser(UUID remoteId) {
+        return read("local_user_" + remoteId);
+    }
+
+    void putUser(UUID localId, UUID remoteId) {
+        store.put(key("user_" + localId), remoteId.toString());
+        store.put(key("local_user_" + remoteId), localId.toString());
+    }
+
     void clear(BackendReportTarget target) {
         remove("post_" + target.post().localId(), remotePost(target.post().localId()));
         for (BackendReportTarget.CommentSnapshot comment : target.comments()) {
